@@ -1,4 +1,4 @@
-define(['backbone', 'underscore'], function(){
+var Models = (function(){
 	var Models = {};
 	
     Models.Location = Backbone.Model.extend({
@@ -47,4 +47,4 @@ define(['backbone', 'underscore'], function(){
     });
     
 	return Models;
-});
+}());

@@ -1,7 +1,6 @@
 /*jslint nomen: true*/
 /*global define, $, Backbone, _, strftime, Raphael */
-
-define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
+var Timeline = (function () {
 	"use strict";
     var TIME_FORMAT = '%Y-%m-%dT%H:%M:%S',
         SVG_NS = "http://www.w3.org/2000/svg",
@@ -9,7 +8,8 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
             events:
             {
                 'click a#zoom_in' : 'zoomOut',
-                'click a#zoom_out' : 'zoomIn'
+                'click a#zoom_out' : 'zoomIn',
+                'click a.zoom_level': 'zoomTo'
             },
             zooms : [
                 { weeks : 1, gap_days : 1 },
@@ -25,7 +25,7 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
                 
                 this.locked = [];
                 
-                this.zoom = 1;
+                
                 
                 this.overlapCollection = this.options.overlapCollection;
                 this.isolateCollection = this.options.isolateCollection;
@@ -36,10 +36,12 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
                 
                 this.addControls();
                 
-                this.canvas = new Raphael(this.el, this.size[0], this.size[1]);
+                this.$el.append('<svg class="timeline" width="' +this.size[0]+ '" height="' + this.size[1] + '"></svg>');
+            
+			 this.canvas = this.$('svg');
                 this.$el.prepend('<h2>Location and Isolate Timeline</h2>');
                 
-                this.svg = $('svg', this.$el)[0];
+                this.svg = this.$('svg')[0];
                 
                 this.gutter = 100;
                 
@@ -57,10 +59,11 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
                 var today = new Date(), two_weeks = new Date(today.getFullYear(), today.getMonth(), today.getDate() - 10, today.getHours(), today.getMinutes(), today.getSeconds());
                 
                 this.setScale(two_weeks, today);
+                this.setZoom(2);
             },
             addControls : function()
             {   
-                this.$el.append('<a href="#" id="zoom_in" class="btn btn-default"> + </a><a href="#" id="zoom_out" class="btn btn-default"> - </a>');
+                this.$el.append('<div class="zoom_bar"><b>Zoom</b><a href="#" id="zoom_in" class="btn btn-primary"> + </a><a href="#" id="zoom_1" class="btn zoom_level btn-default"> 1 </a><a href="#" id="zoom_2" class="btn btn-default zoom_level"> 2 </a><a href="#" id="zoom_3" class="btn btn-default zoom_level"> 3 </a><a href="#" id="zoom_4" class="btn btn-default zoom_level"> 4 </a><a href="#" id="zoom_5" class="btn btn-default zoom_level"> 5 </a><a href="#" id="zoom_6" class="btn btn-default zoom_level"> 6 </a><a href="#" id="zoom_out" class="btn btn-primary"> - </a></div>');
             },
             addOne : function (model) {
                 var patient_id = model.get('patient_id').toString(),
@@ -87,20 +90,20 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
                 this.collection.each(this.addOne, this);
     
                 this.size[1] = (_.size(this.patients) * 30) + 30;
-                this.canvas.setSize(this.size[0], this.size[1]);
+                this.canvas.width(this.size[0])
+                this.canvas.height(this.size[1]);
+                this.movePatients();
             },
             unhighlightOverlap : function (mdl) {
                 var ovl = this.episodes[mdl.get('uniq_id')];
                 if (ovl) {
-                    var jq = $(ovl.rect);
-                    jq.attr('class', jq.attr('class').replace(/\b(selected|overlap)\b/, ' '));
+                    ovl.rect.classList.remove('overlap');
                 }
             },
             highlightOverlap : function (mdl) {
                 var ovl = this.episodes[mdl.get('uniq_id')];
                 if (ovl) {
-                    var jq = $(ovl.rect);
-                    jq.attr('class', jq.attr('class') +  (mdl.get('patient_id') == this.selected_patient ? ' selected' : ' overlap'));
+                    ovl.rect.classList.add('overlap');
                 }
             },
             highlightOverlaps : function () {
@@ -116,22 +119,40 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
                     h = 30,
                     i = this.patients[model.get('patient_id')],
                     res = model.get('result'),
-                    ab =  _.pluck(res, 'SIR').join('');
+                    ab =  _.pluck(res, 'SIR').join(''),
+                    circ;
+                
+                if(!i || res.length == 1) return;
+                
+                if (res.length == 0){
                     
-                if (i !== undefined){
-                    var circ = this.createSVGElement('circle', { 
+                    circ = this.createSVGElement('circle', { 
                         cx : c, 
                         cy : h/2, 
                         r : h/3, 
-                        class : res.length > 0 ? 'positive' + (res.length > 3 ? ' ' + ab : '') : '', 
-                        title : (res.length > 3 ? ab : '') 
+                        class: 'isolate'
                     }); 
-                    
-                    i.appendChild(circ);
-                    
-                    circ.onmouseover = $.proxy(this.isolateHover, this);
-                    circ.onmouseout = $.proxy(this.isolateResetHover, this);
                 }
+                else
+                {
+                    circ = this.createSVGElement('path', {
+                        d : this.getTrianglePath(c, h * 0.6, h/2),
+                        class : 'isolate positive ' + ab, 
+                        title : ab 
+                    });
+                }
+                
+                i.appendChild(circ);
+                
+                circ.onmouseover = $.proxy(this.isolateHover, this);
+                circ.onmouseout = $.proxy(this.isolateResetHover, this);
+                circ.onclick = function(evt)
+                {
+                    evt.stopPropagation();
+                    evt.preventDefault(); 
+                    evt.cancelBubble = true;
+                };
+                
             },
             addIsolates : function ()
             {
@@ -143,6 +164,12 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
                 if(oldele)oldele.remove();
                 this.patients[patient_id] =  this.drawPatient(patient_id); 
                 //this.drawPatient(patient_id);
+            },
+            checkLoaded : function()
+            {
+                if(this.isolatesLoaded && this.overlapsLoaded && this.loactionLoaded) {
+                    this.redraw();   
+                }
             },
             /**
              * create and return an SVG element 
@@ -171,19 +198,24 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
             {
                 var h = 30,
                     i = _.size(this.patients) + 1,
-                    g = this.createSVGElement('g', { 'id' : 'Patient:' +patient_id, 'class' : 'patient' + (i % 2 ? '' : ' alt' ), 'transform' : 'translate(0, ' + (i*h) + ')' }),
-                    band = this.createSVGElement('rect' , { 'x' : 0, 'y' : 0, 'width' : this.size[0], 'height' : h }),
-                    label = this.createSVGElement('text',  { 'x' : 5, 'y' : 18, 'class': 'label' });
+                    g = this.createSVGElement('g', { 'id' : 'Patient:' +patient_id, 'class' : 'patient' + (i % 2 ? '' : ' alt' ) + (patient_id == this.selected_patient ? ' selected' : ''), 'transform' : 'translate(0, ' + (i*h) + ')' }),
+                    band = this.createSVGElement('rect' , { 'x' : 0, 'y' : 0, 'rx' : 5, 'ry' : 5, 'width' : this.size[0], 'height' : h, class : 'band' }),
+                    label = this.createSVGElement('text',  { 'x' : 10, 'y' : 20, 'class': 'label' }),
+                    lock = this.createSVGElement('path', { transform : 'scale(0.9, 0.9) translate(70, 1)', class:'lock', d : 'M24.875 15.334 V10.457999999999998 C24.875 5.563999999999998 20.894 1.5829999999999984 16 1.5829999999999984S7.125 5.563999999999998 7.125 10.457999999999998 V15.334 H5.042 V30.417 H26.958V15.334 H24.875ZM10.625 10.458 C10.625 7.494 13.036 5.083 16 5.083S21.375 7.494 21.375 10.458 V15.334H10.625 V10.458Z M18.272 26.956 H13.726999999999999 L14.948999999999998 23.289 C14.166999999999998 22.900000000000002 13.624999999999998 22.101000000000003 13.624999999999998 21.17 C13.624999999999998 19.858 14.687999999999999 18.795 15.999999999999998 18.795 S18.375 19.857000000000003 18.375 21.17 C18.375 22.102 17.833 22.900000000000002 17.051 23.289 L18.272 26.956Z'}),
+                    selected = this.createSVGElement('path', { transform : 'scale(0.9, 0.9) translate(70, 1)', class:'select', d : 'M2.379,14.729 5.208,11.899 12.958,19.648 25.877,6.733 28.707,9.561 12.958,25.308z'}),
+                    ctx = this;
                 
-                var ctx = this;
-                g.ondblclick = function(evt)
+                g.onclick = function(evt)
                 {
-                    ctx.lock(patient_id);   
+                    ctx.lock(patient_id); 
+                    evt.preventDefault();
                 };
                 
                 label.appendChild(document.createTextNode(patient_id));
                 g.appendChild(band);
                 g.appendChild(label);
+                g.appendChild(lock);
+                g.appendChild(selected);
                 
                 this.svg.appendChild(g);
                 return g;
@@ -197,7 +229,7 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
                 if (ex < 0 ) return;
                 
                 var rect = this.createSVGElement('rect', { x : gu, y : 0, width: ex - sx, height : 30, class : 'episode' }),
-                    txt = this.createSVGElement('text', { x : gu + 5, y : 18  });
+                    txt = this.createSVGElement('text', { x : gu + 5, y : 20, class : 'episode' });
                 
                 txt.appendChild(document.createTextNode(model.get('ward')));
                 try{
@@ -217,11 +249,13 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
                 
                 this.start_date = new Date(this.end_date.getFullYear(), this.end_date.getMonth(), this.end_date.getDate() - zoom.weeks * 7)
                 
-                yr = this.canvas.text(0, 13, this.start_date.getFullYear());
-                yr.attr('fill', '#444');
-                yr.attr('font-size', 15);
-                yr.attr('text-anchor', 'start');
-                yr.attr('font-weight', 'bold');
+                yr = this.createSVGElement('text', { x: 0,  y: 13,
+                    'fill': '#444',
+                    'font-size': 15,
+                    'class': 'tick year'});
+                yr.appendChild(document.createTextNode(this.start_date.getFullYear()));
+                
+                this.svg.appendChild(yr);
                 
                 for(var d = new Date(this.start_date.getFullYear(), this.start_date.getMonth(), this.start_date.getDate());
                     d <= this.end_date; 
@@ -231,30 +265,53 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
                     
                     if( x < this.gutter ) continue;
                     
-                    var tick = this.canvas.path('M ' + x + ' 20 L ' + x + ' ' + this.size[1]);
-                    tick.attr('stroke', isFirst ? '#666' : '#ccc');
+                    //var tick = this.canvas.path('M ' + x + ' 20 L ' + x + ' ' + this.size[1]);
+                    //tick.attr('stroke', isFirst ? '#666' : '#ccc');
                     
-                    var is1Jan = d.getMonth() == 0 && d.getDate() == 1;
-                    d.setHours(12);
+                     var is1Jan = d.getMonth() == 0 && d.getDate() == 1;
+                    d.setHours(0);
                     x = this.getPositionOnScale(d);
                     
-                    var label = this.canvas.text(x, 13, d.strftime(( is1Jan ? '%Y' : '%d %b')));
+                    var tick = this.createSVGElement('path', 
+                             {
+                                d :  'M ' + x + ' 20 L ' + x + ' ' + this.size[1],
+                                stroke: isFirst ? '#666' : '#ccc'
+                             }),
+                    label = this.createSVGElement('text', {
+                        x : x,
+                        y : 13,
+                        'class' : 'tick'  + (is1Jan ? ' year' : ''),
+                        'fill' : '#444',
+                        'font-size' : 15
+                    });
                     
-                    if(is1Jan) {
-                        label.attr('font-weight', 'bold');   
-                    }
+                    this.svg.appendChild(tick);
+                    label.appendChild(document.createTextNode(d.strftime(is1Jan ? '%Y' : '%d %b')));
                     
-                    label.attr('fill', '#444');
-                    label.attr('font-size', 15);
+                    this.svg.appendChild(label);
                     
                     isFirst = false;
                 }
                 
                 var d = new Date(this.end_date.getFullYear(), this.end_date.getMonth(), this.end_date.getDate() +1 ),
                     x = this.getPositionOnScale(d);
-                    tick = this.canvas.path('M ' + x + ' 20 L ' + x + ' ' + this.size[1]);
-                    tick.attr('stroke', '#666');
+                    tick = this.createSVGElement('path', {d : 'M ' + x + ' 20 L ' + x + ' ' + this.size[1], 'stroke': '#666'});
                 
+            },
+            /**
+             * get path text for an equalateral triangle where the point are r from the centre
+             */
+            getTrianglePath : function(x, y, r) {
+                var points = [];
+                var stp = Math.PI * 2 / 3;
+                
+                for ( var i = 3 ; i-- ; )
+                {
+                    var theta = stp* i;
+                    points.push([x + r * Math.sin(theta), y - r * Math.cos(theta)].join(' '));
+                }
+                
+                return 'M ' + points.join(' L ') + ' z';
             },
             /**
              * Set the start and end of the  time period displayed on the timeline.
@@ -305,15 +362,19 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
             },
             lock : function(id)
             {
+                if (id == this.selected_patient) { return; }
                 var idx = this.locked.indexOf(id);
                 if(idx == -1)
                 {
                     this.locked.push(id);
+                    document.getElementById('Patient:' + id).classList.add('locked');
                 }
                 else
                 {
                     this.locked.splice(idx, 1);
+                    document.getElementById('Patient:' + id).classList.remove('locked');
                 }
+                
                 this.movePatients();
             },
             movePatient : function(patient, idx)
@@ -321,15 +382,7 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
                 idx = idx + 1;
                 
                 var desty = idx * 30,
-                    srcy = Number(patient.getAttribute('transform').replace(/[^\d]/gi ,'')),
-                    i = 0,
-                    steps = 10.0,
-                    step = (desty - srcy) / steps,
-                    ival = setInterval(function(){
-                        patient.setAttribute('transform', 'translate(0, ' + (srcy + (i * step)) + ')');
-                        if( i == steps ) clearInterval(ival);
-                        i++;
-                    }, 10);
+                    srcy = Number(patient.getAttribute('transform').replace(/[^\d]/gi ,''));
                 
                 if(idx % 2) 
                 {
@@ -339,21 +392,35 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
                 {
                     patient.classList.remove('alt'); 
                 }
+                
+                if( desty == srcy ) { return; }
+                    
+                var i = 0,
+                    steps = 10.0,
+                    step = (desty - srcy) / steps,
+                    ival = setInterval(function(){
+                        patient.setAttribute('transform', 'translate(0, ' + (srcy + (i * step)) + ')');
+                        if( i == steps ) clearInterval(ival);
+                        i++;
+                    }, 10);
+                
+                
             },
             movePatients : function()
             {
-                if(this.selected_patient)
+                var i = 0
+                
+                if(this.selected_patient && this.patients[this.selected_patient])
                 {
-                    this.movePatient(this.patients[this.selected_patient], 0);
+                    this.movePatient(this.patients[this.selected_patient], i++);
                 }
                 
-                for( var i = 0; i < this.locked.length; i++ )
+                for( var j = 0; j < this.locked.length; j++ )
                 {
-                    this.movePatient(this.patients[this.locked[i]],  i + 1);
+                    this.movePatient(this.patients[this.locked[j]],  i++);
+                    this.patients[this.locked[j]].classList.add('locked');
                 }
                 
-                var  i = this.locked.length + 1;
-        
                 for( var p in this.patients)
                 {
                     if( this.selected_patient != p &&  this.locked.indexOf(p) == -1 )
@@ -365,7 +432,7 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
             popup : function(ele, txt)
             {
                 /*var transform = ele.getCTM();
-                if ( ele.tagName == 'circle' )
+                if ( ele.tagName == 'circcircle' )
                 {
                     var popup = this.createSVGElement('g', { class : 'popup', transform : 'translate(' + ele.cx.baseVal.value  + ',' + ele.cy.baseVal.value+ ')' }),
                         text = this.createSVGElement('text', {});
@@ -379,6 +446,7 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
             },
             redraw : function(source)
             {
+                this.patients = {};
                 this.addAll();
                 this.addIsolates();
                 this.highlightOverlaps();
@@ -459,13 +527,7 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
                     reset: true
                 });
             },
-            checkLoaded : function()
-            {
-                console.debug(this.isolatesLoaded , this.overlapsLoaded , this.loactionLoaded);
-                if(this.isolatesLoaded && this.overlapsLoaded && this.loactionLoaded) {
-                    this.redraw();   
-                }
-            },
+            
             setLoading : function()
             {
                 this.$el.addClass('loading');
@@ -478,6 +540,9 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
             {
                 this.zoom = Math.min(this.zooms.length, Math.max(0, lvl));    
                 this.setDateTime(this.router.dateTime);
+                
+                this.$('.zoom_bar .btn-info').removeClass('btn-info');
+                this.$('.zoom_bar #zoom_' + (this.zoom + 1)).addClass('btn-info');
             },
             zoomOut : function()
             {
@@ -485,10 +550,15 @@ define(['backbone', 'underscore', 'strftime'], function (ig, no, strfdate) {
             },
             zoomIn : function()
             {
-                if( this.zoom < this.zooms.length ) { this.setZoom(this.zoom + 1); }
+                if( this.zoom < this.zooms.length - 1 ) { this.setZoom(this.zoom + 1); }
+            },
+            zoomTo : function(evt)
+            {
+                var lvl = evt.target.id.replace(/zoom_/, '');
+                this.setZoom(Number(lvl) - 1);
             }
 	   });
     
 	return TimeLine;
 	
-});
+})();

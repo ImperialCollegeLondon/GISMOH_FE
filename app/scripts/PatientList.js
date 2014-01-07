@@ -1,9 +1,9 @@
-define(['backbone', 'underscore', 'strftime'], function(ig, no, strfdate){
+var PatientList = (function(){
 	var PatientList = {};
     var TIME_FORMAT = '%Y-%m-%dT%H:%M:%S';
 	
 	PatientList.PatientItem = Backbone.View.extend({
-		tagName : 'li',
+		tagName : 'div',
 		events : '',
 		initialize: function() {
 	      this.listenTo(this.model, 'change', this.render);
@@ -20,10 +20,10 @@ define(['backbone', 'underscore', 'strftime'], function(ig, no, strfdate){
 	});
 	
 	
-	PatientList.PatientList = Backbone.View.extend({
+	PatientList.List = Backbone.View.extend({
 		selected_id : null,
 		events : {
-			'click li' : 'selectPatient'
+			'click div' : 'selectPatient'
 		},
 		
 		abortRequest : function()
@@ -33,7 +33,7 @@ define(['backbone', 'underscore', 'strftime'], function(ig, no, strfdate){
 		addOne : function(item)
 		{
 			var pat_itm = new PatientList.PatientItem({model : item });
-			this.$('ul').append(pat_itm.render().el);
+			this.$el.append(pat_itm.render().el);
 		},
 		addAll : function()
 		{
@@ -57,12 +57,12 @@ define(['backbone', 'underscore', 'strftime'], function(ig, no, strfdate){
             this.$el.empty();
 			
 			this.$el.addClass('patient_viewer');
-			this.$el.append('<h2>Positive and Risk Patients</h2><ul ></ul>');
+			this.$el.append('<h2>Positive and Risk Patients <button class="help" type="button" data-toggle="modal" data-target="#patient-list-help" title="Help">?</button></h2>');
 		},
 		render : function(){
 			
-			this.list = $('ul', this.$el);
-            this.list.empty();
+			this.list = this.$el;
+            this.$('.patient').remove();
 			$('i', this.$el).remove();
             
 			if( this.collection.length == 0 && !this.$el.hasClass('loading') )
@@ -120,4 +120,4 @@ define(['backbone', 'underscore', 'strftime'], function(ig, no, strfdate){
 	
 
 	return PatientList;
-});
+})();

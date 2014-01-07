@@ -1,63 +1,7 @@
 /*global require, Backbone*/
-
-
-require.config({
-    shim: {
-        underscore: {
-            exports: '_'
-        },
-        backbone: {
-            deps: [
-                'underscore',
-                'jquery'
-            ],
-            exports: 'Backbone'
-        },
-        bootstrap: {
-            deps: [
-                'jquery'
-            ],
-            exports: 'jquery'
-        }
-    },
-    paths: {
-        jquery: '../bower_components/jquery/jquery',
-        backbone: '../bower_components/backbone/backbone',
-        underscore: '../bower_components/underscore/underscore',
-        bootstrap: 'vendor/bootstrap',
-        'g.raphael': '../bower_components/g.raphael/g.raphael',
-        modernizr: '../bower_components/modernizr/modernizr',
-        raphael: '../bower_components/raphael/raphael',
-        'requirejs-text': '../bower_components/requirejs-text/text',
-        requirejs: '../bower_components/requirejs/require',
-        'sass-bootstrap': '../bower_components/sass-bootstrap/dist/js/bootstrap'
-    }
-});
-
-require([
-    'PatientList', 'Linker', 'Replay', 'strftime', 'Timeline', 'models', 'WorkerLoader'
-], function (PatientList, Linker, Replay, strftime, Timeline, Models, Loader) {
+$(function(){
     'use strict';
-    
-    if(Modernizr.webworkers)
-    {
-        Backbone.Collection.prototype.fetch = function(args)
-        {
-            this.trigger('request');
-            
-            var wkr = new Loader({ callback: $.proxy(this.fetch_callback, this) });
-            wkr.loadUrl(this.url, args.data);
-        };
-        
-        Backbone.Collection.prototype.fetch_callback = function(data)
-        {
-            this.reset(data);
-            this.trigger('sync');
-            this.trigger('reset');
-        }
-        
-    }
-    
+
     var Controller = Backbone.Router.extend({
             /***
              * Views that this controller influences
@@ -94,7 +38,7 @@ require([
             bio_collection : isolateCollection, 
             loc_collection: overlapCollection 
         }),
-        plist = new PatientList.PatientList({
+        plist = new PatientList.List({
             el : '#patient_list', 
             router : controller, 
             collection: patientCollection
@@ -111,8 +55,6 @@ require([
         });
 
     Backbone.history.start();
-    
-    window.timline = timeline;
     
     controller.dateTime = currentDate;
     controller.setDateTime(currentDate);

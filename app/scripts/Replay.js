@@ -1,4 +1,4 @@
-define(['backbone', 'underscore'], function(){
+var Replay = (function(){
 	var Replay = Backbone.View.extend({
 		currentDateTime : null,
 		events:{
@@ -21,11 +21,10 @@ define(['backbone', 'underscore'], function(){
 			$('body').append(this.$el);
 			
 			this.$el.addClass('replay');
-			this.$el.append('<div class="tray"><div class="curdate"></div><span class="btn decday" title="-1 Day"><span class="glyphicon glyphicon-fast-backward"></span></span><span class="btn dechr"><span class="glyphicon glyphicon-backward" title="-1 Hour"></span></span><span>&nbsp;</span><span class="btn inchr" title="+1 Hour"><span class="glyphicon glyphicon-forward" title="-1 Hour"></span></span><span class="btn incday" title="+1 Day"><span class="glyphicon glyphicon-fast-forward" title="-1 Hour"></span></span></div><div class="handle">Set Time</div>')
+			this.$el.append('<div class="tray"><form class="curdate" id="curdate"><input type="number" name="day" /><select name="month"><option value="0">January</option><option value="1">February</option><option value="2">March</option><option value="3">April</option><option value="4">May</option><option value="5">June</option><option value="6">July</option><option value="7">August</option><option value="8">September</option><option value="9">October</option><option value="10">November</option><option value="12">December</option></select><input type="number" name="year" /> <input type="number" name="hour" />:<input type="number" name="minute" /></form><span class="btn decday" title="-1 Day"><span class="glyphicon glyphicon-fast-backward"></span></span><span class="btn dechr"><span class="glyphicon glyphicon-backward" title="-1 Hour"></span></span><span>&nbsp;</span><span class="btn inchr" title="+1 Hour"><span class="glyphicon glyphicon-forward" title="-1 Hour"></span></span><span class="btn incday" title="+1 Day"><span class="glyphicon glyphicon-fast-forward" title="-1 Hour"></span></span></div><div class="handle">Set Time</div>')
 		},
 		open : function()
 		{
-			console.debug('open');
 			this.$el.clearQueue();
 			this.$el.animate({'top' : '0px'})
 		},
@@ -72,7 +71,13 @@ define(['backbone', 'underscore'], function(){
 		setDateTime : function(dt)
 		{
 			this.controller.dateTime = dt;
-			$('.curdate', this.$el).text(dt);
+			//$('.curdate', this.$el).text(dt);
+            var frm = document.forms['curdate'];
+            frm.day.value = dt.getDate();
+            frm.month.value = dt.getMonth();
+            frm.year.value = dt.getFullYear();
+            frm.hour.value = dt.getHours();
+            frm.minute.value = dt.getMinutes();
 		},
 		fireUpdate : function()
 		{
@@ -81,4 +86,4 @@ define(['backbone', 'underscore'], function(){
 	});
 
 	return Replay;
-});
+})();

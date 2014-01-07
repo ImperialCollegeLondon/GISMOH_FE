@@ -1,8 +1,10 @@
 /*global define, Backbone, Raphael */
-define(['backbone', 'underscore', 'raphael', 'strftime'], function (ig, no, re, d) {
+var Linker = (function () {
     'use strict';
-	var Linker = {};
-	var TIME_FORMAT = '%Y-%m-%dT%H:%M:%S';
+	var Linker = {},
+        TIME_FORMAT = '%Y-%m-%dT%H:%M:%S',
+        SVG_NS = "http://www.w3.org/2000/svg";
+    
     
 	Linker.Graph = Backbone.View.extend({
 		events : {
@@ -33,7 +35,9 @@ define(['backbone', 'underscore', 'raphael', 'strftime'], function (ig, no, re, 
 			
 			this.r_c = this.rmax - this.rmin;
 			
-			this.canvas = new Raphael(this.el, this.size[0], this.size[1]);
+            this.$el.append('<svg class="linker" width="' +this.size[0]+ '" height="' + this.size[1] + '"></svg>');
+            
+			this.canvas = this.$('svg');
 			this.$el.prepend('<h2>Related Isolates</h2>');
 			
 			this.listenTo(this.bio_collection, 'sync', this.addAll);
@@ -60,11 +64,30 @@ define(['backbone', 'underscore', 'raphael', 'strftime'], function (ig, no, re, 
 			var theta = (i / this.bio_collection.length) * Math.PI * 2,
                 r = this.getR(similarity) + this.d + 10;
 			
-			return [r * Math.cos(theta), r * Math.sin(theta)];
+			return [r * Math.cos(theta), r * Math.sin(theta) + 6];
 		},
+        /**
+         * create and return an SVG element 
+         *
+         * @param tag_name {string} the type of element to be created
+         * @param attrs {object} a dictionary of the attributes to apply to the object
+         */
+        createSVGElement : function (tag_name, attrs)
+        {
+            var ele  = document.createElementNS(SVG_NS, tag_name);
+            
+            for( var key in attrs )
+            {
+                ele.setAttribute(key, attrs[key]);   
+            }
+            
+            this.canvas.append(ele);
+            
+            return ele;
+        },
 		addAll : function () {
 
-			this.canvas.clear();
+			this.canvas.empty();
 			this.eles = {};
 			
             if (this.bio_collection.length == 0) {
@@ -74,7 +97,7 @@ define(['backbone', 'underscore', 'raphael', 'strftime'], function (ig, no, re, 
             {
                 this.bio_collection.each(this.addOne, this);
                 
-                var c = this.canvas.circle(this.centre[0], this.centre[1], this.d * 2),
+                /*var c = this.canvas.circle(this.centre[0], this.centre[1], this.d * 2),
                     lbl = this.canvas.text(this.centre[0], this.centre[1], this.selected_id);
                 
                 c.attr('fill', '#428bca');
@@ -82,7 +105,25 @@ define(['backbone', 'underscore', 'raphael', 'strftime'], function (ig, no, re, 
                 c.attr('title', 'Selected Patient (' + this.selected_id  + ')');
                     
                 lbl.attr('fill', '#FFF');
-                lbl.attr('font-size', 16);
+                lbl.attr('font-size', 16);*/
+                
+                var c = this.createSVGElement('circle', {
+                    cx : this.centre[0],
+                    cy :this.centre[1],
+                    r : this.d*2,
+                    class : 'selected',
+                    title : 'Selected Patient (' + this.selected_id  + ')'
+                }), lbl = this.createSVGElement('text', {
+                    x : this.centre[0],
+                    y :this.centre[1] + 6,
+                    class : 'selected',
+                    title : 'Selected Patient (' + this.selected_id  + ')'
+                });
+                
+                
+                
+                lbl.appendChild(document.createTextNode(this.selected_id));
+                
                 this.loc_collection.reset();
                 this.lreq = this.loc_collection.fetch({data: {patient_id : this.selected_id,  at_date : this.router.dateTime.strftime(TIME_FORMAT,  this.dateTime) }}); 
                 this.addAllLocations();
@@ -92,43 +133,32 @@ define(['backbone', 'underscore', 'raphael', 'strftime'], function (ig, no, re, 
 			//if(this.eles[model.get('Result')['patient_id']]) return;
 			
 			var cen = this.getCentre(i, model.get('similarity')),
-                l = this.canvas.path('M ' + this.centre[0] + ' ' + this.centre[1] + ' l' + cen[0] + ' ' + cen[1], this.d),
-                c = this.canvas.circle(this.centre[0] + cen[0], this.centre[1] + cen[1], this.d);
-			l.attr('stroke', '#b3b3b3');
-			
-			
-			c.attr('fill', '#e6e6e6');
-			c.attr('stroke', '#b3b3b3');
-			c.attr('title', model.get('Result')['patient_id']);
-			c.node.id = model.get('Result')['patient_id'];
-		
+                l = this.createSVGElement('path', {d : 'M ' + this.centre[0] + ' ' + this.centre[1] + ' l' + cen[0] + ' ' + cen[1], id : this.d }),
+                 c = this.createSVGElement('circle', {
+                    cx : this.centre[0] + cen[0],
+                    cy :this.centre[1] + cen[1],
+                    r : this.d,
+                    title : model.get('Result')['patient_id'],
+                    id : model.get('Result')['patient_id']
+                })
+    
+		      
+            
 			this.eles[model.get('Result')['patient_id'].toString()] = c;
 			
 			var ct = this.getTextAnchor(i, model.get('similarity'));
-			var lbl = this.canvas.text(this.centre[0] + ct[0], this.centre[1] + ct[1], model.get('Result')['patient_id']);
-
-			if(ct[0] > 0)
-			{
-				lbl.attr('text-anchor', 'start');
-			}
-			else
-			{
-				lbl.attr('text-anchor', 'end');
-			}
+			var lbl = this.createSVGElement('text', { x : this.centre[0] + ct[0], y :this.centre[1] + ct[1], 'text-anchor' : ct[0] > 0 ? 'start': 'end' });
+            lbl.appendChild(document.createTextNode(model.get('Result')['patient_id']));
 		},
 		addAllLocations : function() {
-		
-                console.debug(this.loc_collection.length);
-				this.loc_collection.each(this.addOneLocation, this);
-			
-            
+            this.$('.danger').removeClass('danger');
+            this.loc_collection.each(this.addOneLocation, this);
 		},
 		addOneLocation : function(model, i) {
 			var ele = this.eles[model.get('patient_id').toString()];
 			if(ele)
 			{
-				ele.attr('fill', '#d9534f');
-				ele.attr('stroke', '#d43f3a');
+				ele.classList.add('danger');
 			}
 		},
 		no_links:function() {
@@ -144,7 +174,7 @@ define(['backbone', 'underscore', 'raphael', 'strftime'], function (ig, no, re, 
 			this.router.navigate('patient/' + this.selected_id, { trigger : true, replace:true });
 		},
 		selectedPatient : function (id) {
-			this.canvas.clear();
+			this.canvas.empty();
 			this.abortRequest();
 			this.bio_collection.reset();
 			this.selected_id = id;
@@ -181,4 +211,4 @@ define(['backbone', 'underscore', 'raphael', 'strftime'], function (ig, no, re, 
 	});
 	
 	return Linker;
-});
+})();

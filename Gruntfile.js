@@ -367,7 +367,6 @@ module.exports = function (grunt) {
         'jst',
         'compass:dist',
         'useminPrepare',
-        'requirejs',
         'imagemin',
         'htmlmin',
         'concat',
