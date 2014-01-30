@@ -8,7 +8,8 @@ var Linker = (function () {
     
 	Linker.Graph = Backbone.View.extend({
 		events : {
-			'click circle' : 'selectPatient'
+			'click circle' : 'selectPatient',
+			'click path.danger' : 'selectPatient'
 		},
 		abortRequest : function () {
 			if (this.breq && this.breq.readyState > 0 && this.breq.readyState < 4) { this.breq.abort(); }
@@ -30,7 +31,7 @@ var Linker = (function () {
 			this.size = [this.$el.width(), Math.max(this.$el.height(), 300)];
 			this.centre = [this.size[0] / 2, this.size[1] / 2];
 			
-			this.rmin = this.d * 8;
+			this.rmin = this.d * 7.0;
 			this.rmax = Math.min(this.centre[0], this.centre[1]) - this.padding;
 			
 			this.r_c = this.rmax - this.rmin;
@@ -38,19 +39,38 @@ var Linker = (function () {
             this.$el.append('<svg class="linker" width="' +this.size[0]+ '" height="' + this.size[1] + '"></svg>');
             
 			this.canvas = this.$('svg');
-			this.$el.prepend('<h2>Related Isolates</h2>');
-			
+			this.$el.prepend('<h2>Related Isolates<button class="help" type="button" data-toggle="modal" data-target="#isolates-help" title="Help">?</button></h2>');
+            
 			this.listenTo(this.bio_collection, 'sync', this.addAll);
 			this.listenTo(this.loc_collection, 'sync', this.addAllLocations);
 			
-			this.router.on('route:selected', this.selectedPatient, this);
+            this.router.on('route:selected', this.selectedPatient, this);
             
 			this.listenTo(this.bio_collection, 'request', this.setLoading);
 			this.listenTo(this.loc_collection, 'request', this.setLoading);
 			this.listenTo(this.bio_collection, 'sync', this.unsetLoading);
 			this.listenTo(this.loc_collection, 'sync', this.unsetLoading);
-			
 		},
+        createLegend : function()
+        {
+            var legend_group = this.createSVGElement('g', { class : 'legend', transform : 'translate('+ (this.size[0] - 205) +','+(this.size[1] - 60)  +')'});
+            legend_group.appendChild(this.createSVGElement('circle', {x:0, y:10, r:this.d}, true));
+            legend_group.appendChild(this.createSVGElement('text', {x:10 + this.d, y:5, r:this.d}, true))
+                .appendChild(document.createTextNode('Strain match'));
+            legend_group.appendChild(this.createSVGElement('path', {d : this.getTrianglePath(0, 25, this.d * 1.1), class : 'danger'}, true));
+            var lbl2 = this.createSVGElement('text', {x:10 + this.d, y:30, r:this.d}, true);
+            var sp1 = this.createSVGElement('tspan', { x : 10 + this.d }, true);
+            var sp2 = this.createSVGElement('tspan', { x : 10 + this.d, dy : "1.2em" }, true);
+
+            sp1.appendChild(document.createTextNode('Strain match and'));
+            sp2.appendChild(document.createTextNode('location overlap'));
+            
+            lbl2.appendChild(sp1);
+            lbl2.appendChild(sp2);
+            
+            legend_group.appendChild(lbl2);
+            
+        },
 		getR : function (similarity) {
 			return this.rmin + (this.r_c *  (1 - similarity));
 		},
@@ -66,13 +86,25 @@ var Linker = (function () {
 			
 			return [r * Math.cos(theta), r * Math.sin(theta) + 6];
 		},
+        getTrianglePath : function(x, y, r) {
+            var points = [];
+            var stp = Math.PI * 2 / 3;
+            
+            for ( var i = 3 ; i-- ; )
+            {
+                var theta = stp* i;
+                points.push([x + r * Math.sin(theta), y - r * Math.cos(theta)].join(' '));
+            }
+            
+            return 'M ' + points.join(' L ') + ' z';
+        },
         /**
          * create and return an SVG element 
          *
          * @param tag_name {string} the type of element to be created
          * @param attrs {object} a dictionary of the attributes to apply to the object
          */
-        createSVGElement : function (tag_name, attrs)
+        createSVGElement : function (tag_name, attrs, prevent_append)
         {
             var ele  = document.createElementNS(SVG_NS, tag_name);
             
@@ -81,7 +113,7 @@ var Linker = (function () {
                 ele.setAttribute(key, attrs[key]);   
             }
             
-            this.canvas.append(ele);
+            if(!prevent_append) this.canvas.append(ele);
             
             return ele;
         },
@@ -96,17 +128,7 @@ var Linker = (function () {
             else
             {
                 this.bio_collection.each(this.addOne, this);
-                
-                /*var c = this.canvas.circle(this.centre[0], this.centre[1], this.d * 2),
-                    lbl = this.canvas.text(this.centre[0], this.centre[1], this.selected_id);
-                
-                c.attr('fill', '#428bca');
-                c.attr('stroke', '#357ebd');
-                c.attr('title', 'Selected Patient (' + this.selected_id  + ')');
-                    
-                lbl.attr('fill', '#FFF');
-                lbl.attr('font-size', 16);*/
-                
+
                 var c = this.createSVGElement('circle', {
                     cx : this.centre[0],
                     cy :this.centre[1],
@@ -119,15 +141,17 @@ var Linker = (function () {
                     class : 'selected',
                     title : 'Selected Patient (' + this.selected_id  + ')'
                 });
-                
-                
-                
+ 
                 lbl.appendChild(document.createTextNode(this.selected_id));
                 
                 this.loc_collection.reset();
-                this.lreq = this.loc_collection.fetch({data: {patient_id : this.selected_id,  at_date : this.router.dateTime.strftime(TIME_FORMAT,  this.dateTime) }}); 
+                this.lreq = this.loc_collection.fetch({data: {
+                    patient_id : this.selected_id,  
+                    at_date : this.router.dateTime.strftime(TIME_FORMAT,  this.dateTime) 
+                }}); 
                 this.addAllLocations();
             }
+            this.createLegend();
 		},
 		addOne : function (model, i) {
 			//if(this.eles[model.get('Result')['patient_id']]) return;
@@ -140,10 +164,8 @@ var Linker = (function () {
                     r : this.d,
                     title : model.get('Result')['patient_id'],
                     id : model.get('Result')['patient_id']
-                })
-    
-		      
-            
+                });
+
 			this.eles[model.get('Result')['patient_id'].toString()] = c;
 			
 			var ct = this.getTextAnchor(i, model.get('similarity'));
@@ -156,9 +178,19 @@ var Linker = (function () {
 		},
 		addOneLocation : function(model, i) {
 			var ele = this.eles[model.get('patient_id').toString()];
-			if(ele)
+			if(ele && ele.tagName == 'circle')
 			{
-				ele.classList.add('danger');
+                $(ele).remove();
+                ele = this.createSVGElement('path', { 
+                d : this.getTrianglePath(ele.cx.baseVal.value, 
+                                         ele.cy.baseVal.value, 
+                                         ele.r.baseVal.value * 1.1), 
+                    class : 'danger',
+                    id: ele.id,
+                    title : ele.title
+                });
+                
+				this.eles[model.get('patient_id').toString()] = ele;
 			}
 		},
 		no_links:function() {
@@ -188,6 +220,9 @@ var Linker = (function () {
 				this.no_links();
 			}
 		},
+        /**
+         *  set the date and time the plugin uses as a base
+         */
 		setDateTime : function(dt) {
 			this.datetime = dt;
 			this.abortRequest();
@@ -200,14 +235,13 @@ var Linker = (function () {
 			{
 				this.no_links();
 			}
-			//this.lreq = this.loc_collection.fetch({data:{patient_id: this.selected_id,  at_date : strftime(TIME_FORMAT,  this.datetime) }});
 		},
 		setLoading : function() {
 			this.$el.addClass('loading');
 		},
 		unsetLoading : function() {
 		  this.$el.removeClass('loading');
-		},
+		}
 	});
 	
 	return Linker;

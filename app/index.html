@@ -32,35 +32,92 @@
 
             <div class="row text-left">
                 
-                <div id="patient_list" class="col-sm-4">
+                <div id="patient_list" class="">
                     
                 </div>
-                <div id="linker" class="col-sm-8">
+                <div id="linker" class="">
+                </div><div id="ab_list" class="">
                 </div>
             </div>
 
             <div class="row marketing">
-                <div id="timeline" class="col-sm-12">
+                <div id="timeline" class="">
                 </div>
-       
             </div>
         </div>
             <!--<div class="footer">
                 <p>&copy; Imperial College 2013</p>
             </div>-->
 
-       <div class="modal modal-fade" id="patient-list-help" role="dialog" aria-labelledby="patient-list-help-label" aria-hidden="true" tabindex="-1">
+       <div class="modal modal-fade" id="patient-list-help" role="dialog" aria-labelledby="#patient-list-help-label" aria-hidden="true" tabindex="-1">
            <div class="modal-dialog">
                <div class="modal-content"> 
                    <div class="modal-header">
                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                       <h4 class="modal-title" id="myModalLabel">Help for Positive and Risk Patients</h4>
+                       <h4 class="modal-title" id="patient-list-help-label">Help for Positive and Risk Patients</h4>
                    </div>
                    <div class="modal-body">This is a list of patients that are in the hospital that have MRSA or have had MRSA previosuly. Patients with red icons are colonised, those with blue icons have previously been colonised. A patient with a blue background is currently selected.
                     <h4>Use this Panel:</h4>
                    <ul class="actions">
                         <li><strong>Click</strong> on a patient to see who else has carried a similar isolate</li>   
                     </ul></div>
+                   <div class="modal-footer">
+                       <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                   </div>
+               </div>
+           </div>
+        </div>
+        <div class="modal modal-fade" id="isolates-help" role="dialog" aria-labelledby="#isolates-help-label" aria-hidden="true" tabindex="-1">
+           <div class="modal-dialog">
+               <div class="modal-content"> 
+                   <div class="modal-header">
+                       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                       <h4 class="modal-title" id="isolates-help-label">Help for Related Isolates Panel</h4>
+                   </div>
+                   <div class="modal-body">
+                       The blue circle is the patient currently selected, yellow circles represent patients who with similar isolates, red triangles represent patienst who have similar isolates who have also spent time on the same ward as the patient
+                        <h4>Use this Panel:</h4>
+                        <ul class="actions">
+                            <li><strong>Click</strong> on a patient to select them and view their diagram</li>   
+                        </ul>
+                   </div>
+                   <div class="modal-footer">
+                       <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                   </div>
+               </div>
+           </div>
+        </div>
+        <div class="modal modal-fade" id="timeline-help" role="dialog" aria-labelledby="#timeline-help-label" aria-hidden="true" tabindex="-1">
+           <div class="modal-dialog">
+               <div class="modal-content"> 
+                   <div class="modal-header">
+                       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                       <h4 class="modal-title" id="timeline-help-label">Help for Timeline</h4>
+                   </div>
+                   <div class="modal-body">The timeline shows where patients have been in the hospital, episodes (stays on a ward) are gray by default, turning blue for the currently selected patient (the patient with a tick by their number), and yellow for any stay that have overlapped with that patient. Patients can be "locked" to the top of the list by clicking on their row. Locked patients numbers' appear in bold, and are also signified by a padlock.
+                       
+                       Green Circles are swabs that do not show MRSA carriage, red triangles are swabs that show MRSA carriage
+                    <h4>Use this Panel:</h4>
+                   <ul class="actions">
+                        <li><strong>Click</strong> on a patient to lock the patient to lock or unlock them</li>   
+                        <li><strong>Roll over</strong> a positive swab to highlight other swabs which show carriage of a related isolate.</li>   
+                    </ul></div>
+                   <div class="modal-footer">
+                       <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                   </div>
+               </div>
+           </div>
+        </div>
+        <div class="modal modal-fade" id="adaptable" role="dialog" aria-labelledby="#adaptable-label" aria-hidden="true" tabindex="-1">
+           <div class="modal-dialog">
+               <div class="modal-content"> 
+                   <div class="modal-header">
+                       <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                       <h4 class="modal-title" id="adaptable-label">Adaptable Modal</h4>
+                   </div>
+                   <div class="modal-body">
+                     
+                   </div>
                    <div class="modal-footer">
                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                    </div>
@@ -82,21 +139,13 @@
         </div>
    
 	   </script>
-        
-        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-        <script>
-            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-            e.src='//www.google-analytics.com/analytics.js';
-            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-            ga('create','UA-XXXXX-X');ga('send','pageview');
-        </script>
 
         <!-- build:js scripts/main.js -->
         <script src="bower_components/jquery/jquery.js"></script>
         <script src="bower_components/modernizr/modernizr.js"></script>
         <script src="bower_components/sass-bootstrap/js/modal.js" ></script>
+        <script src="bower_components/sass-bootstrap/js/tooltip.js" ></script>
+        <script src="bower_components/sass-bootstrap/js/popover.js" ></script>
         <script src="bower_components/underscore/underscore.js" ></script>
         <script src="bower_components/backbone/backbone.js" ></script>
         <script src="scripts/models.js" ></script>
@@ -105,6 +154,7 @@
         <script src="scripts/PatientList.js" ></script>
         <script src="scripts/Timeline.js" ></script>
         <script src="scripts/Replay.js" ></script>
+        <script src="scripts/AB_List.js" ></script>
         <script src="scripts/main.js" ></script>
         <!-- endbuild -->
 </body>

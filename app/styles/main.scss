@@ -1,8 +1,8 @@
 $icon-font-path: "/bower_components/sass-bootstrap/fonts/";
 $selected-color: #CFCFFF;
-$single-overlap-color: #DDDD33;
-$both-overlap-color: #DD3333;
-$negative-isolate-color: #33DD33;
+$single-overlap-color: rgb(252,255,32);
+$both-overlap-color: rgb(255,47,43);
+$negative-isolate-color: #FFF;
 
 @import 'sass-bootstrap/lib/bootstrap';
 
@@ -91,7 +91,7 @@ body {
 		font-size:16pt;
 		line-height:18pt;
         padding-bottom: 0.5em;
-        border-bottom: 1px solid #333;
+        border-bottom: 2px solid #CCC;
 	}
 }
 
@@ -100,8 +100,10 @@ body {
 	background: url('../images/loading-sm.gif') 50% 50% no-repeat;
 }
 
-.patient_viewer
+#patient_list
 {
+    @include make-sm-column(4);
+    
 	.patient
     {
         @extend .btn;
@@ -112,7 +114,6 @@ body {
         text-align: left;
         position: relative;
         
-        border-color : #444;
         
         transition: all 0.5s ease;
         
@@ -136,7 +137,7 @@ body {
 
         &.selected
         {
-            background-color : $selected-color;
+            @extend .btn-info;
         }
 
         &:hover
@@ -191,25 +192,53 @@ body {
 .replay
 {
 	position: fixed;
-	top: -70px;
+	top: -90px;
 	right:100px;
 	text-align:center;
 	z-index:1500;
     
 	@extend .unselectable;
 	
+    form
+    {
+        @extend .form-inline;   
+        
+        margin-bottom: 5px;
+        
+        div
+        {
+            @extend .form-group;   
+        }
+
+        input, select
+        {
+            @extend .form-control;    
+        }
+
+        input[type=number]
+        {
+            width : 4em;  
+            &[name=year]
+            {
+                width: 5em;
+            }
+        }
+
+        select
+        {
+            width : auto;
+        }
+    }
+    
 	.tray
 	{
 		border: 1px solid #AAAAAA;
         background: #CCCCCC;
-		height: 70px;
-		width: 350px;
+		height: 90px;
+		width: 370px;
 		padding: 10px 0px;
 		
-        input[type=number]
-        {
-            width : 4em;   
-        }
+        
 	}
 	
 	.handle
@@ -218,7 +247,7 @@ body {
         background: #CCCCCC;
         font-weight : bold;
         font-size : 115%;
-		width:370px;
+		width:390px;
 		height:40px;
 		padding : 10px;
 		border-bottom-right-radius : 45px;
@@ -241,8 +270,15 @@ body {
     
 }
 
-.linker
+#ab_list 
 {
+    @include make-sm-column(2);   
+}
+
+#linker
+{
+    @include make-sm-column(6);
+    
 	-moz-user-select: none; 
     -khtml-user-select: none; 
     -webkit-user-select: none; 
@@ -266,27 +302,47 @@ body {
         stroke: #444;
     }
 
-    circle
+    circle, path.danger
     {
          stroke: #444;
          fill : $single-overlap-color;
+    
+        transition: all 0.5s ease;
     
         &.selected
         {
             fill: $selected-color;      
         }
-
+    
         &.danger
         {
-            fill: $both-overlap-color;
+            fill: $both-overlap-color; 
+            
         }   
+
+         &:hover
+        {
+            stroke-width : 3px;
+            cursor: pointer;
+        }
+
+        
     }
         
+    .legend
+    {
+        text
+        {
+            text-anchor : start;
+        }
+    }
 	
 }
 
-.timeline
-{       
+#timeline
+{   
+    @include make-sm-column(12);
+    
     text 
     {
         font-size : 12pt;
@@ -307,7 +363,7 @@ body {
     .zoom_bar
     {
         position : fixed;
-        right: 1em;
+        right: 2em;
         
         text-align:center;
         vertical-align: middle;

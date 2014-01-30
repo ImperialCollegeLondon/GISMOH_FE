@@ -24,8 +24,7 @@ var Timeline = (function () {
                 this.router.components.push(this);
                 
                 this.locked = [];
-                
-                
+                this.show = [];
                 
                 this.overlapCollection = this.options.overlapCollection;
                 this.isolateCollection = this.options.isolateCollection;
@@ -39,7 +38,7 @@ var Timeline = (function () {
                 this.$el.append('<svg class="timeline" width="' +this.size[0]+ '" height="' + this.size[1] + '"></svg>');
             
 			 this.canvas = this.$('svg');
-                this.$el.prepend('<h2>Location and Isolate Timeline</h2>');
+                this.$el.prepend('<h2>Location and Isolate Timeline<button class="help" type="button" data-toggle="modal" data-target="#timeline-help" title="Help">?</button></h2>');
                 
                 this.svg = this.$('svg')[0];
                 
@@ -63,7 +62,8 @@ var Timeline = (function () {
             },
             addControls : function()
             {   
-                this.$el.append('<div class="zoom_bar"><b>Zoom</b><a href="#" id="zoom_in" class="btn btn-primary"> + </a><a href="#" id="zoom_1" class="btn zoom_level btn-default"> 1 </a><a href="#" id="zoom_2" class="btn btn-default zoom_level"> 2 </a><a href="#" id="zoom_3" class="btn btn-default zoom_level"> 3 </a><a href="#" id="zoom_4" class="btn btn-default zoom_level"> 4 </a><a href="#" id="zoom_5" class="btn btn-default zoom_level"> 5 </a><a href="#" id="zoom_6" class="btn btn-default zoom_level"> 6 </a><a href="#" id="zoom_out" class="btn btn-primary"> - </a></div>');
+                this.$el.append('<div class="zoom_bar"><b>Zoom</b><a href="#" id="zoom_in" title="Zoom in" data-toggle="tooltip" data-placement="auto"  class="btn btn-primary"> + </a><a href="#" id="zoom_1" class="btn zoom_level btn-default" data-toggle="tooltip" data-placement="auto" title="1 week"> 1 </a><a href="#" id="zoom_2" class="btn btn-default zoom_level" data-toggle="tooltip" data-placement="auto" title="2 weeks"> 2 </a><a href="#" id="zoom_3" class="btn btn-default zoom_level" data-toggle="tooltip" data-placement="auto" title="4 weeks"> 3 </a><a href="#" id="zoom_4" class="btn btn-default zoom_level" data-toggle="tooltip" data-placement="auto" title="~3 months (12 weeks)"> 4 </a><a href="#" id="zoom_5" class="btn btn-default zoom_level" data-toggle="tooltip" data-placement="auto" title="~6 months (16 weeks)"> 5 </a><a href="#" id="zoom_6" class="btn btn-default zoom_level" data-toggle="tooltip" data-placement="auto" title="~1 year (52 weeks)"> 6 </a><a href="#" id="zoom_out" class="btn btn-primary" data-toggle="tooltip" data-placement="auto" title="zoom out"> - </a></div>');
+                this.$('.zoom_bar a').tooltip();
             },
             addOne : function (model) {
                 var patient_id = model.get('patient_id').toString(),
@@ -135,12 +135,17 @@ var Timeline = (function () {
                 }
                 else
                 {
+                    var s = model.get('patient_id').toString();
+                    if (this.show.indexOf(s) == -1 ) this.show.push(s);
+                    
                     circ = this.createSVGElement('path', {
                         d : this.getTrianglePath(c, h * 0.6, h/2),
                         class : 'isolate positive ' + ab, 
                         title : ab 
                     });
                 }
+                
+                circ.id = model.get('isolate_id');
                 
                 i.appendChild(circ);
                 
@@ -160,6 +165,7 @@ var Timeline = (function () {
             },
             addPatient : function (patient_id)
             {
+                
                 var oldele = document.getElementById('Patient:' + patient_id);
                 if(oldele)oldele.remove();
                 this.patients[patient_id] =  this.drawPatient(patient_id); 
@@ -196,6 +202,7 @@ var Timeline = (function () {
              */
             drawPatient : function (patient_id)
             {
+                
                 var h = 30,
                     i = _.size(this.patients) + 1,
                     g = this.createSVGElement('g', { 'id' : 'Patient:' +patient_id, 'class' : 'patient' + (i % 2 ? '' : ' alt' ) + (patient_id == this.selected_patient ? ' selected' : ''), 'transform' : 'translate(0, ' + (i*h) + ')' }),
@@ -347,8 +354,16 @@ var Timeline = (function () {
                 
                 if(ttl)
                 {
-                    var jq = $('.' + ttl, this.$el);
-                    jq.attr('class', jq.attr('class') + ' related');
+                    var jqs = $('.positive', this.$el);
+                    for(var i = 0; i < jqs.length; i++)
+                    {   
+                        var ttl2 = jqs[i].getAttribute('title');
+
+                        if( ttl2.indexOf(ttl) !== -1 || ttl.indexOf(ttl2) !== -1)
+                        {
+                            jqs[i].classList.add('related');
+                        }
+                    }
                 }
             },
             isolateResetHover : function()
@@ -379,6 +394,8 @@ var Timeline = (function () {
             },
             movePatient : function(patient, idx)
             {
+                if(!patient) return;
+                
                 idx = idx + 1;
                 
                 var desty = idx * 30,
@@ -408,21 +425,35 @@ var Timeline = (function () {
             },
             movePatients : function()
             {
-                var i = 0
+                var i = 0;
+                console.debug(this.show);
                 
                 if(this.selected_patient && this.patients[this.selected_patient])
                 {
+                    //this.patients[this.selected_patient].classList.remove('hidden'); 
                     this.movePatient(this.patients[this.selected_patient], i++);
                 }
                 
                 for( var j = 0; j < this.locked.length; j++ )
                 {
+                    //this.patients[this.locked[j]].classList.remove('hidden');
                     this.movePatient(this.patients[this.locked[j]],  i++);
                     this.patients[this.locked[j]].classList.add('locked');
                 }
                 
                 for( var p in this.patients)
                 {
+                    if(this.show.indexOf(p.toString()) == -1)
+                    {
+                        //this.patients[p].classList.add('hidden');
+                        //continue;
+                    }
+                    else
+                    {
+                        console.debug(p);
+                        //this.patients[p].classList.remove('hidden');
+                    }
+                    
                     if( this.selected_patient != p &&  this.locked.indexOf(p) == -1 )
                     {
                          this.movePatient(this.patients[p],  i++);
@@ -432,7 +463,7 @@ var Timeline = (function () {
             popup : function(ele, txt)
             {
                 /*var transform = ele.getCTM();
-                if ( ele.tagName == 'circcircle' )
+                if ( ele.tagName == 'path' )
                 {
                     var popup = this.createSVGElement('g', { class : 'popup', transform : 'translate(' + ele.cx.baseVal.value  + ',' + ele.cy.baseVal.value+ ')' }),
                         text = this.createSVGElement('text', {});

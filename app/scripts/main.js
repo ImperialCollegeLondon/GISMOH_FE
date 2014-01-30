@@ -1,5 +1,5 @@
 /*global require, Backbone*/
-$(function(){
+function main(){
     'use strict';
 
     var Controller = Backbone.Router.extend({
@@ -31,7 +31,7 @@ $(function(){
         isolateCollection = new Models.BioLinkCollection(),
         overlapCollection = new Models.LocationLinkCollection(),
         locationCollection = new Models.LocationCollection(),
-        resutsCollection = new Models.IsolateCollection(),
+        resultsCollection = new Models.IsolateCollection(),
         linker = new Linker.Graph({
             el : '#linker', 
             router : controller, 
@@ -50,12 +50,19 @@ $(function(){
             el: '#timeline', 
             controller : controller, 
             collection : locationCollection,
-            isolateCollection : resutsCollection,
+            isolateCollection : resultsCollection,
             overlapCollection : overlapCollection
+        }),
+        ab_list = new AB_List({
+            el:'#ab_list',
+            controller : controller,
+            collection : resultsCollection
         });
 
     Backbone.history.start();
     
     controller.dateTime = currentDate;
     controller.setDateTime(currentDate);
-});
+}
+
+$(main);
