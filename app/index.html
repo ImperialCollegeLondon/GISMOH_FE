@@ -54,9 +54,9 @@
                <div class="modal-content"> 
                    <div class="modal-header">
                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                       <h4 class="modal-title" id="patient-list-help-label">Help for Positive and Risk Patients</h4>
+                       <h4 class="modal-title" id="patient-list-help-label">Help for Recent Isolates</h4>
                    </div>
-                   <div class="modal-body">This is a list of patients that are in the hospital that have MRSA or have had MRSA previosuly. Patients with red icons are colonised, those with blue icons have previously been colonised. A patient with a blue background is currently selected.
+                   <div class="modal-body"> This is a list of the most recent test results returned 
                     <h4>Use this Panel:</h4>
                    <ul class="actions">
                         <li><strong>Click</strong> on a patient to see who else has carried a similar isolate</li>   
@@ -125,9 +125,10 @@
            </div>
         </div>
 
+        <!-- Underscore template for the rist patient module  -->
         <script type="text/template" id="patient_template">
 		  <div>
-            <%= patient_id %>
+            <%= patient_number %>
             <span class="status" title="<%= type%> patient">
                 <span class="icon-white <% if (type == "positive") { %> icon-warning-sign <%} else {%> icon-info-sign <% } %>"></span>
             </span>
@@ -135,7 +136,8 @@
                 <span class="icon-white"></span>
             </span>
           </div>
-        <div><%= location.speciality %> | <%= location.ward %>
+        <div>
+            <span class="ward"> <%= location.ward_name %></span> <span class="speciality"><%= location.specialty %> </span>
         </div>
    
 	   </script>

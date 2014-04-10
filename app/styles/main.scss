@@ -1,3 +1,4 @@
+$font-family-sans-serif:  "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
 $icon-font-path: "/bower_components/sass-bootstrap/fonts/";
 $selected-color: #CFCFFF;
 $single-overlap-color: rgb(252,255,32);
@@ -100,9 +101,27 @@ body {
 	background: url('../images/loading-sm.gif') 50% 50% no-repeat;
 }
 
+.selected
+{
+    @extend .btn-info;   
+}
+
 #patient_list
 {
     @include make-sm-column(4);
+    
+    .speciality
+    {
+        @extend .text-muted;
+        @extend .pull-right;
+        font-weight: bold;
+        
+    }   
+
+    .ward
+    {
+        font-weight: bold;   
+    }
     
 	.patient
     {
@@ -146,6 +165,7 @@ body {
             border-color: #444;
         }
     }
+    
 }
 
 .status_box, .relation

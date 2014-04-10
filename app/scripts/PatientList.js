@@ -2,6 +2,10 @@ var PatientList = (function(){
 	var PatientList = {};
     var TIME_FORMAT = '%Y-%m-%dT%H:%M:%S';
 	
+    
+    /**
+     *  An individual Patient Item
+     */
 	PatientList.PatientItem = Backbone.View.extend({
 		tagName : 'div',
 		events : '',
@@ -19,7 +23,9 @@ var PatientList = (function(){
 		}
 	});
 	
-	
+	/*
+     * A list of patient Items
+     */ 
 	PatientList.List = Backbone.View.extend({
 		selected_id : null,
 		events : {
@@ -57,7 +63,7 @@ var PatientList = (function(){
             this.$el.empty();
 			
 			this.$el.addClass('patient_viewer');
-			this.$el.append('<h2>Positive and Risk Patients <button class="help" type="button" data-toggle="modal" data-target="#patient-list-help" title="Help">?</button></h2>');
+			this.$el.append('<h2>Recent Isolates <button class="help" type="button" data-toggle="modal" data-target="#patient-list-help" title="Help">?</button></h2>');
 		},
 		render : function(){
 			
@@ -67,7 +73,7 @@ var PatientList = (function(){
             
 			if( this.collection.length == 0 && !this.$el.hasClass('loading') )
 			{
-				this.$el.append('<i>No patients<i>');
+				this.$el.append('<i>No new isolates<i>');
 			}
 			else
 			{

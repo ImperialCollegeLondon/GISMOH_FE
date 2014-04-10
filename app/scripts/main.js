@@ -7,26 +7,58 @@ function main(){
              * Views that this controller influences
              */
             components : [],
+            /***
+             * Set up the controller
+             */
             initialize: function (dt) {
                 this.dateTime = dt;
             },
+            /***
+             * dictionary of post-hash urls i.e /#/patient/123 selects a patient with GISMOH ID 123
+             */
             routes : {
                 "patient/:id" : "selected"
             },
+            /***
+             *  Doesn't do much as the functionality is handled using the "route" event
+             */
             selected : function (page) {
                 
             },
+            /**
+             * Set the currently selected isolate in all components to @isolate_id
+             */
+            select_isolate : function(isolate_id)
+            {
+                for (var c = 0; c < this.components.length; c = c + 1) {
+                    if(this.components[c].set_isolate) this.components[c].set_isolate(isolate_id);
+                }
+            },
+            /**
+             * Set the current Date of all components  to @pt
+             */
             setDateTime : function (dt) {
                 var c = 0;
                 this.dateTime = dt;
                 
                 for (c = 0; c < this.components.length; c = c + 1) {
-                    this.components[c].setDateTime(dt);
+                   if(this.components[c].setDateTime) this.components[c].setDateTime(dt);
                 }
             }
         }),
-        currentDate = new Date('2011-02-26T00:00:00'),
+        
+        /**
+         * The app should be initialised to today's date
+         */
+        currentDate = new Date(),
+        
+        /*
+         * Create and instance of the controller object
+         */
         controller = new Controller(currentDate),
+        /*
+         * Collection for patients who 
+         */
         patientCollection = new Models.PatientCollection(),
         isolateCollection = new Models.BioLinkCollection(),
         overlapCollection = new Models.LocationLinkCollection(),

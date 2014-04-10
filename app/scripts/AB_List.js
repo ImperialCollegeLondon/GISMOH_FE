@@ -14,6 +14,8 @@ var AB_List = (function()
             this.$el.append('<h2>Antibiograms</h2>'); 
             
             this.options.controller.on('route:selected', this.selectPatient, this);
+            this.controller = this.options.controller;
+            this.controller.components.push(this);
             
             this.listenTo(this.collection, 'add', this.addOne);
             this.listenTo(this.collection, 'reset', this.addAll);
@@ -24,23 +26,17 @@ var AB_List = (function()
             {
                 this.collection.each(this.addOne, this);
                 this.draw();
-                this.$('.btn:first').addClass('btn-info');
+                //this.$('.btn:first').addClass('btn-info');
+                this.$('.btn:first').click();
             }
         },
         addOne : function(mdl)
         {
-            var ab = mdl.get('result');
-            if( ab.length < 3 || mdl.get('patient_id') != this.selected_patient ) return; 
-            var str = this.getABString(ab);
             
-            if( !this.abs[str] || this.abs[str].test_date < mdl.get('test_date') )
-            {
-                this.abs[str] = { 
-                    test_date : mdl.get('test_date'),
-                    str : str,
-                    result : mdl.get('result')
-                }
-            }   
+            var ab = mdl.get('result')[0];
+            if(  mdl.get('patient_id') != this.selected_patient ) return; 
+            
+            this.abs[ab.sir_identifier] = ab;
         },
         click_ab : function(evt)
         {
@@ -52,12 +48,14 @@ var AB_List = (function()
                 if (!btn) throw "null button";
             }
             
+            this.controller.select_isolate(btn.id);
             
         },
         draw : function()
         {
             this.$('div').remove();
             var lst = _.sortBy(this.abs, function(obj){return obj.test_date;} );
+            
             for( var ab in lst)
             {
                 this.drawOne(lst[ab]);
@@ -69,18 +67,21 @@ var AB_List = (function()
             var ctl = document.createElement('div');
             ctl.classList.add('btn');
             ctl.classList.add('btn-default');
+            ctl.id = ab.isolate_id;
             
             var ab_span = document.createElement('div')
             ab_span.className='ab-string';
-            ab_span.appendChild(document.createTextNode(ab.str));
+            ab_span.appendChild(document.createTextNode(this.getABString(ab.sir_results)));
             
             var date_span = document.createElement('div')
             date_span.className='ab-date';
-            date_span.appendChild(document.createTextNode(new Date(ab.test_date).strftime('%d %b %Y')));
+            
+            
+            date_span.appendChild(document.createTextNode(new Date(ab.date_tested.replace(' ', 'T')).strftime('%d %b %Y')));
             
             ctl.appendChild(ab_span);
             ctl.appendChild(date_span);
-            ctl.classList.add(ab.str);
+            ctl.classList.add(ab.sir_results_identifier);
             this.$('h2').after(ctl);
             
         },
@@ -92,31 +93,43 @@ var AB_List = (function()
             this.reset();
             this.addAll();
         },
-        selectAntibiogram : function(iso_id)
+        set_isolate : function(iso_id)
         {
-            
+           this.$('.btn').each(function(idx, ele)
+           {
+                if( ele.id == iso_id )
+                {
+                    ele.classList.add('selected');
+                }
+                else
+                {
+                    ele.classList.remove('selected');
+                }
+           });
         },
         /***
          * return the 
          */
         getABString : function(ab)
         {
-            var str = "";
-            for( var i = this.order.length; i--; ) { str += '-'; }
-            
-            for( var j = 0; j < ab.length ; j++ )
-            {
-                var pos = this.order.indexOf(ab[j]['Antibiotic']);
-                
-                if(pos < 0)
-                {
-                    pos = this.order.length;
-                    this.order.push(ab[j]['Antibiotic']);
-                }
-
-                str = str.substr(0, pos) + ab[j]['SIR'] + str.substr(pos+1);
-            }
+//            var str = "";
+//            for( var i = this.order.length; i--; ) { str += '-'; }
+//            
+//            for( var j = 0; j < ab.length ; j++ )
+//            {
+//                var pos = this.order.indexOf(ab[j]['Antibiotic']);
+//                
+//                if(pos < 0)
+//                {
+//                    pos = this.order.length;
+//                    this.order.push(ab[j]['Antibiotic']);
+//                }
+//
+//                str = str.substr(0, pos) + ab[j]['SIR'] + str.substr(pos+1);
+//            }
         
+            var str = '';
+            for ( var x in ab) { str += ab[x]}
             return str;
         },
         reset : function(){

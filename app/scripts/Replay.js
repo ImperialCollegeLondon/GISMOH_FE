@@ -61,7 +61,6 @@ var Replay = (function(){
 		},
         set_time : function()
         {
-            console.debug('change_date');
             dt = new Date();
             var frm = document.forms['curdate'];
             dt.setDate(frm.day.value );

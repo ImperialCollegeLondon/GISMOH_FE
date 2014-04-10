@@ -21,6 +21,8 @@ var Linker = (function () {
 			
 			this.$el.addClass('gismoh_plugin');
 			
+            this.isolate_id = -1;
+            
 			this.router = this.options.router;
             this.router.components.push(this);
             
@@ -53,11 +55,29 @@ var Linker = (function () {
 		},
         createLegend : function()
         {
-            var legend_group = this.createSVGElement('g', { class : 'legend', transform : 'translate('+ (this.size[0] - 205) +','+(this.size[1] - 60)  +')'});
-            legend_group.appendChild(this.createSVGElement('circle', {x:0, y:10, r:this.d}, true));
-            legend_group.appendChild(this.createSVGElement('text', {x:10 + this.d, y:5, r:this.d}, true))
+            var legend_group = this.createSVGElement('g', { 
+                class : 'legend', 
+                transform : 'translate('+ (this.size[0] - 205) +','+(this.size[1] - 60)  +')'
+            });
+
+            legend_group.appendChild(this.createSVGElement('circle', {
+                x:0, 
+                y:10, 
+                r:this.d
+            }, true));
+            
+            legend_group.appendChild(this.createSVGElement('text', {
+                x:10 + this.d, 
+                y:5, 
+                r:this.d
+            }, true))
                 .appendChild(document.createTextNode('Strain match'));
-            legend_group.appendChild(this.createSVGElement('path', {d : this.getTrianglePath(0, 25, this.d * 1.1), class : 'danger'}, true));
+            
+            legend_group.appendChild(this.createSVGElement('path', {
+                d : this.getTrianglePath(0, 25, this.d * 1.1), 
+                class : 'danger'
+            }, true));
+            
             var lbl2 = this.createSVGElement('text', {x:10 + this.d, y:30, r:this.d}, true);
             var sp1 = this.createSVGElement('tspan', { x : 10 + this.d }, true);
             var sp2 = this.createSVGElement('tspan', { x : 10 + this.d, dy : "1.2em" }, true);
@@ -71,6 +91,11 @@ var Linker = (function () {
             legend_group.appendChild(lbl2);
             
         },
+        set_isolate : function(isolate_id)
+        {
+            this.isolate_id = isolate_id;
+            this.loadData();
+        },
 		getR : function (similarity) {
 			return this.rmin + (this.r_c *  (1 - similarity));
 		},
@@ -82,7 +107,7 @@ var Linker = (function () {
 		},
 		getTextAnchor : function (i, similarity) {
 			var theta = (i / this.bio_collection.length) * Math.PI * 2,
-                r = this.getR(similarity) + this.d + 10;
+                r = this.getR(similarity) + this.d + 60;
 			
 			return [r * Math.cos(theta), r * Math.sin(theta) + 6];
 		},
@@ -123,7 +148,8 @@ var Linker = (function () {
 			this.eles = {};
 			
             if (this.bio_collection.length == 0) {
-                //this.no_links();
+                
+                this.no_links();
             }
             else
             {
@@ -142,13 +168,15 @@ var Linker = (function () {
                     title : 'Selected Patient (' + this.selected_id  + ')'
                 });
  
-                lbl.appendChild(document.createTextNode(this.selected_id));
+                //lbl.appendChild(document.createTextNode(this.selected_id));
                 
                 this.loc_collection.reset();
-                this.lreq = this.loc_collection.fetch({data: {
-                    patient_id : this.selected_id,  
-                    at_date : this.router.dateTime.strftime(TIME_FORMAT,  this.dateTime) 
-                }}); 
+                this.lreq = this.loc_collection.fetch({
+                    data: {
+                        patient_id : this.patient_id,  
+                        at_date : this.router.dateTime.strftime(TIME_FORMAT,  this.dateTime) 
+                    }
+                }); 
                 this.addAllLocations();
             }
             this.createLegend();
@@ -162,15 +190,18 @@ var Linker = (function () {
                     cx : this.centre[0] + cen[0],
                     cy :this.centre[1] + cen[1],
                     r : this.d,
-                    title : model.get('Result')['patient_id'],
-                    id : model.get('Result')['patient_id']
+                    title : model.get('Isolate').patient_number,
+                    id : model.get('Isolate').patient_id
                 });
 
-			this.eles[model.get('Result')['patient_id'].toString()] = c;
+			this.eles[model.get('Isolate')['patient_id'].toString()] = c;
 			
 			var ct = this.getTextAnchor(i, model.get('similarity'));
-			var lbl = this.createSVGElement('text', { x : this.centre[0] + ct[0], y :this.centre[1] + ct[1], 'text-anchor' : ct[0] > 0 ? 'start': 'end' });
-            lbl.appendChild(document.createTextNode(model.get('Result')['patient_id']));
+			var lbl = this.createSVGElement('text', { 
+                x : this.centre[0] + ct[0], 
+                y :this.centre[1] + ct[1], 
+                'text-anchor' : ct[0] > 0 ? 'start': 'end' });
+            lbl.appendChild(document.createTextNode(model.get('Isolate')['patient_number']));
 		},
 		addAllLocations : function() {
             this.$('.danger').removeClass('danger');
@@ -193,12 +224,28 @@ var Linker = (function () {
 				this.eles[model.get('patient_id').toString()] = ele;
 			}
 		},
+        loadData : function()
+        {
+                this.breq = this.bio_collection.fetch({
+                    data:{
+                        isolate_id: this.isolate_id,  
+                        at_date :  this.router.dateTime.strftime(TIME_FORMAT),  
+                    }
+                });  
+        },
 		no_links:function() {
             this.$el.removeClass('laoding');
             
-			var txt = this.canvas.text(10, 10, 'No Patients');
-			txt.attr('text-anchor', 'start');
-			txt.attr('font-size', 14);
+			var txt = this.createSVGElement('text', {
+                x : 70,
+                y : 20,
+                'font-style':'italic'
+            });
+            txt.appendChild(document.createTextNode("No similar isolates"));
+		
+			//txt.attr('font-size', 14);
+			//txt.attr('font-style', 'italic');
+            
 		},
 		selectPatient : function(evt) {
 		
@@ -213,7 +260,7 @@ var Linker = (function () {
 			
 			if(this.selected_id)
 			{
-				this.breq = this.bio_collection.fetch({data:{patient_id: this.selected_id,  at_date :  this.router.dateTime.strftime(TIME_FORMAT) }});
+				this.loadData();
 			}
 			else
 			{
@@ -229,7 +276,7 @@ var Linker = (function () {
             
 			if(this.selected_id)
 			{
-				this.breq = this.bio_collection.fetch({data:{patient_id: this.selected_id,  at_date : this.router.dateTime.strftime(TIME_FORMAT) }});
+				this.loadData();
 			}
 			else
 			{
