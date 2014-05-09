@@ -20,20 +20,20 @@
         <![endif]-->
 
         <div class="wrapper">
-     
+
             <div class="navbar navbar-fixed-top navbar-gismoh">
                 <!--<ul class="nav nav-pills pull-right">
                     <li class="active"><a href="#">Home</a></li>
                     <li><a href="#">About</a></li>
                     <li><a href="#">Contact</a></li>
                 </ul>-->
-                <a href="/" class="navbar-brand">GISMOH</a>
+                <a href="/" class="navbar-brand"></a>
             </div>
 
             <div class="row text-left">
-                
+
                 <div id="patient_list" class="">
-                    
+
                 </div>
                 <div id="linker" class="">
                 </div><div id="ab_list" class="">
@@ -51,15 +51,15 @@
 
        <div class="modal modal-fade" id="patient-list-help" role="dialog" aria-labelledby="#patient-list-help-label" aria-hidden="true" tabindex="-1">
            <div class="modal-dialog">
-               <div class="modal-content"> 
+               <div class="modal-content">
                    <div class="modal-header">
                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                        <h4 class="modal-title" id="patient-list-help-label">Help for Recent Isolates</h4>
                    </div>
-                   <div class="modal-body"> This is a list of the most recent test results returned 
+                   <div class="modal-body"> This is a list of the most recent test results returned
                     <h4>Use this Panel:</h4>
                    <ul class="actions">
-                        <li><strong>Click</strong> on a patient to see who else has carried a similar isolate</li>   
+                        <li><strong>Click</strong> on a patient to see who else has carried a similar isolate</li>
                     </ul></div>
                    <div class="modal-footer">
                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -69,7 +69,7 @@
         </div>
         <div class="modal modal-fade" id="isolates-help" role="dialog" aria-labelledby="#isolates-help-label" aria-hidden="true" tabindex="-1">
            <div class="modal-dialog">
-               <div class="modal-content"> 
+               <div class="modal-content">
                    <div class="modal-header">
                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                        <h4 class="modal-title" id="isolates-help-label">Help for Related Isolates Panel</h4>
@@ -78,7 +78,7 @@
                        The blue circle is the patient currently selected, yellow circles represent patients who with similar isolates, red triangles represent patienst who have similar isolates who have also spent time on the same ward as the patient
                         <h4>Use this Panel:</h4>
                         <ul class="actions">
-                            <li><strong>Click</strong> on a patient to select them and view their diagram</li>   
+                            <li><strong>Click</strong> on a patient to select them and view their diagram</li>
                         </ul>
                    </div>
                    <div class="modal-footer">
@@ -89,18 +89,18 @@
         </div>
         <div class="modal modal-fade" id="timeline-help" role="dialog" aria-labelledby="#timeline-help-label" aria-hidden="true" tabindex="-1">
            <div class="modal-dialog">
-               <div class="modal-content"> 
+               <div class="modal-content">
                    <div class="modal-header">
                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                        <h4 class="modal-title" id="timeline-help-label">Help for Timeline</h4>
                    </div>
                    <div class="modal-body">The timeline shows where patients have been in the hospital, episodes (stays on a ward) are gray by default, turning blue for the currently selected patient (the patient with a tick by their number), and yellow for any stay that have overlapped with that patient. Patients can be "locked" to the top of the list by clicking on their row. Locked patients numbers' appear in bold, and are also signified by a padlock.
-                       
+
                        Green Circles are swabs that do not show MRSA carriage, red triangles are swabs that show MRSA carriage
                     <h4>Use this Panel:</h4>
                    <ul class="actions">
-                        <li><strong>Click</strong> on a patient to lock the patient to lock or unlock them</li>   
-                        <li><strong>Roll over</strong> a positive swab to highlight other swabs which show carriage of a related isolate.</li>   
+                        <li><strong>Click</strong> on a patient to lock the patient to lock or unlock them</li>
+                        <li><strong>Roll over</strong> a positive swab to highlight other swabs which show carriage of a related isolate.</li>
                     </ul></div>
                    <div class="modal-footer">
                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -110,13 +110,13 @@
         </div>
         <div class="modal modal-fade" id="adaptable" role="dialog" aria-labelledby="#adaptable-label" aria-hidden="true" tabindex="-1">
            <div class="modal-dialog">
-               <div class="modal-content"> 
+               <div class="modal-content">
                    <div class="modal-header">
                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
                        <h4 class="modal-title" id="adaptable-label">Adaptable Modal</h4>
                    </div>
                    <div class="modal-body">
-                     
+
                    </div>
                    <div class="modal-footer">
                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -127,20 +127,11 @@
 
         <!-- Underscore template for the rist patient module  -->
         <script type="text/template" id="patient_template">
-		  <div>
-            <%= patient_number %>
-            <span class="status" title="<%= type%> patient">
-                <span class="icon-white <% if (type == "positive") { %> icon-warning-sign <%} else {%> icon-info-sign <% } %>"></span>
-            </span>
-            <span class="relation">
-                <span class="icon-white"></span>
-            </span>
-          </div>
-        <div>
-            <span class="ward"> <%= location.ward_name %></span> <span class="speciality"><%= location.specialty %> </span>
-        </div>
-   
-	   </script>
+            <td><%= patient_number %></td>
+
+            <td> <%= location.ward_name %></td>
+            <td> <%= location.specialty %> </td>
+       </script>
 
         <!-- build:js scripts/main.js -->
         <script src="bower_components/jquery/jquery.js"></script>

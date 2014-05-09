@@ -1,9 +1,11 @@
-$font-family-sans-serif:  "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+$font-family-sans-serif:  "Helvetica Neue", Helvetica, Arial, sans-serif;
 $icon-font-path: "/bower_components/sass-bootstrap/fonts/";
-$selected-color: #CFCFFF;
-$single-overlap-color: rgb(252,255,32);
-$both-overlap-color: rgb(255,47,43);
+$hover-color: #CFCFFF;
+$selected-color: rgb(175, 178, 255);
+$single-overlap-color: rgba(200,200,200, 1.0);
+$both-overlap-color: rgba(43, 133, 255, 1.0);
 $negative-isolate-color: #FFF;
+$positive-isolate-color: rgba(255, 0,0,1);
 
 @import 'sass-bootstrap/lib/bootstrap';
 
@@ -11,13 +13,13 @@ $negative-isolate-color: #FFF;
 body {
     padding-top: 20px;
     padding-bottom: 20px;
-    font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;
+    font-family: $font-family-sans-serif;
 }
 
 .wrapper
 {
-    padding: 40px 15px 0px;   
-    
+    padding: 40px 15px 0px;
+
     .row{
         margin:0;
     }
@@ -25,19 +27,21 @@ body {
 
 .navbar-gismoh
 {
+
     a
     {
-        color: #FFFFFF;
-        
+        font-size: 1.6em;
+        color: #777;
+
         transition: color 0.5s ease;
-        
+
         &:hover
         {
-            color: #CCCCFF;   
+            color: #333;
         }
     }
 
-    background-color: #3333DD;
+    background-color: #EEE;
 }
 
 .help
@@ -46,6 +50,7 @@ body {
     @extend .btn-default;
     @extend .pull-right;
 }
+
 
 /* Custom page footer */
 .footer {
@@ -83,112 +88,144 @@ body {
 
 .gismoh_plugin
 {
-	/*border:2px solid #e6e6e6;*/
-    
+    /*border:2px solid #e6e6e6;*/
+
     height:40%;
-	
-	h2
-	{	
-		font-size:16pt;
-		line-height:18pt;
-        padding-bottom: 0.5em;
-        border-bottom: 2px solid #CCC;
-	}
+
+    h2
+    {
+        color : #888;
+        font-size:1.5em;
+        line-height:1.55em;
+        margin-top: 0;
+        padding-bottom: 0.5rem;
+        border-bottom: 1px solid #CCC;
+    }
 }
 
 .loading h2
 {
-	background: url('../images/loading-sm.gif') 50% 50% no-repeat;
+    background: url('../images/loading-sm.gif') 50% 50% no-repeat;
 }
 
 .selected
 {
-    @extend .btn-info;   
+    @extend .btn-info;
 }
 
 #patient_list
 {
-    @include make-sm-column(4);
-    
+    @include make-sm-column(6);
+
+    table
+    {
+        width: 100%;
+    }
+
+    thead
+    {
+        font-size: 1.1em;
+        border-bottom: 1px solid #EEE;
+
+        th
+        {
+            font-weight: 200;
+        }
+    }
+
+    th, td
+    {
+        text-align: center;
+    }
+
     .speciality
     {
         @extend .text-muted;
         @extend .pull-right;
         font-weight: bold;
-        
-    }   
+
+    }
 
     .ward
     {
-        font-weight: bold;   
+        font-weight: bold;
     }
-    
-	.patient
+
+    .patient
     {
-        @extend .btn;
-        @extend .btn-default;
-        display : inline-block;
-        margin  : 0.125em 0.25em;
-        width : 150px;
-        text-align: left;
-        position: relative;
-        
-        
-        transition: all 0.5s ease;
-        
+
+        td
+        {
+            padding: 0.2em;
+
+            &:first-child
+            {
+                border-top-left-radius: 1em;
+                border-bottom-left-radius: 1em;
+            }
+
+            &:last-child
+            {
+                border-top-right-radius: 1em;
+                border-bottom-right-radius: 1em;
+            }
+
+            &.R
+            {
+                color : red;
+            }
+
+            &.S
+            {
+                color : paleGreen;
+            }
+
+            &.gap, &.I
+            {
+                color: lightGray;
+            }
+
+        }
+
         &.risk
         {
-            .status {
-                @extend .status_box;
-                @extend .btn-info;
-            }
-        }
-
-        &.positive
-        {
-            .status{
-                @extend .status_box;
-                @extend .btn-danger;
-                @extend .glyphicon;
-                @extend .glyphicon-exclamation-sign;
-            }
-        }
-
-        &.selected
-        {
-            @extend .btn-info;
+            display: none;
         }
 
         &:hover
         {
-            @include scale(1.1);
-            border-color: #444;
+            background-color: $hover-color;
+        }
+
+        &.selected
+        {
+            background-color: $selected-color;
         }
     }
-    
+
 }
 
 .status_box, .relation
 {
     @extend .btn;
-	position:absolute;
-	height : 20px;
-	width: 20px;
-	right:0;
-	margin: 0;
+    position:absolute;
+    height : 20px;
+    width: 20px;
+    right:0;
+    margin: 0;
     padding:2px;
-	text-align : center;
-	vertical-align : middle;
+    text-align : center;
+    vertical-align : middle;
 }
 
 .status_box
 {
-	top: 0;
+    top: 0;
 }
 
 .relation
 {
-	bottom: 0;
+    bottom: 0;
 }
 
 
@@ -199,45 +236,45 @@ body {
     -o-user-select: none;
     user-select: none;
  }
- 
+
 .selectable{
-	-moz-user-select: text;
-	-khtml-user-select: text;
-	-webkit-user-select: text;
-	-o-user-select: text;
-	user-select: text;
+    -moz-user-select: text;
+    -khtml-user-select: text;
+    -webkit-user-select: text;
+    -o-user-select: text;
+    user-select: text;
 }
- 
+
 
 .replay
 {
-	position: fixed;
-	top: -90px;
-	right:100px;
-	text-align:center;
-	z-index:1500;
-    
-	@extend .unselectable;
-	
+    position: fixed;
+    top: -90px;
+    right:100px;
+    text-align:center;
+    z-index:1500;
+
+    @extend .unselectable;
+
     form
     {
-        @extend .form-inline;   
-        
+        @extend .form-inline;
+
         margin-bottom: 5px;
-        
+
         div
         {
-            @extend .form-group;   
+            @extend .form-group;
         }
 
         input, select
         {
-            @extend .form-control;    
+            @extend .form-control;
         }
 
         input[type=number]
         {
-            width : 4em;  
+            width : 4em;
             &[name=year]
             {
                 width: 5em;
@@ -249,71 +286,72 @@ body {
             width : auto;
         }
     }
-    
-	.tray
-	{
-		border: 1px solid #AAAAAA;
-        background: #CCCCCC;
-		height: 90px;
-		width: 370px;
-		padding: 10px 0px;
-		
-        
-	}
-	
-	.handle
-	{
-		border:1px solid #AAAAAA;
-        background: #CCCCCC;
+
+    .tray
+    {
+        border: 1px solid #AAAAAA;
+        background: linear-gradient(#eee, #aaa);
+        height: 90px;
+        width: 370px;
+        padding: 10px 0px;
+
+
+    }
+
+    .handle
+    {
+        color: #888;
+        border:1px solid #eee;
+        background: linear-gradient(#eee, #ccc);
         font-weight : bold;
         font-size : 115%;
-		width:390px;
-		height:40px;
-		padding : 10px;
-		border-bottom-right-radius : 45px;
-		border-bottom-left-radius : 45px;
-		margin-left: -10px;
-    
+        width:390px;
+        height:40px;
+        padding : 10px;
+        border-bottom-right-radius : 45px;
+        border-bottom-left-radius : 45px;
+        margin-left: -10px;
+
         transition : background 0.5s ease;
-    
+
         &:hover
         {
-            background: #EEEEEE;
+            background: linear-gradient(#eef, #ccf);
             cursor:pointer;
         }
-	}
+    }
 
     .btn
     {
         @extend .btn-default;
     }
-    
+
 }
 
-#ab_list 
+#ab_list
 {
-    @include make-sm-column(2);   
+    display: none;
+   /* @include make-sm-column(2);*/
 }
 
 #linker
 {
     @include make-sm-column(6);
-    
-	-moz-user-select: none; 
-    -khtml-user-select: none; 
-    -webkit-user-select: none; 
+
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
     -o-user-select: none;
     user-select:none;
-    
+
     text
     {
         fill : black;
-        font-size : 12pt;
-        text-anchor : middle;
-        
+        font-size : 0.8em;
+
         &.selected
         {
-            font-size: 15pt;
+            font-size: 1.1em;
         }
     }
 
@@ -324,21 +362,21 @@ body {
 
     circle, path.danger
     {
-         stroke: #444;
+         stroke: transparent;
          fill : $single-overlap-color;
-    
+
         transition: all 0.5s ease;
-    
+
         &.selected
         {
-            fill: $selected-color;      
+            fill: $selected-color;
         }
-    
+
         &.danger
         {
-            fill: $both-overlap-color; 
-            
-        }   
+            fill: $both-overlap-color;
+
+        }
 
          &:hover
         {
@@ -346,96 +384,98 @@ body {
             cursor: pointer;
         }
 
-        
+
     }
-        
+
     .legend
     {
         text
         {
             text-anchor : start;
+            font-size: 0.8em;
+            color : #888;
         }
     }
-	
+
 }
 
 #timeline
-{   
+{
     @include make-sm-column(12);
-    
-    text 
+
+    text
     {
         font-size : 12pt;
         font-weight: normal;
-        
+
         &.tick
         {
-            text-anchor: middle;    
-            
+            text-anchor: middle;
+
             &.year
             {
                 text-anchor: start;
-                font-weight: bold;   
+                font-weight: bold;
             }
         }
     }
-    
+
     .zoom_bar
     {
         position : fixed;
         right: 2em;
-        
+
         text-align:center;
         vertical-align: middle;
         width: 34px;
-        
+
         .btn
         {
             font-size: 12pt;
-            
+
             display: block;
-            
+
             width : 30px;
             transition: all 0.25s ease;
             padding: 3px 6px;
-        }   
-        
+        }
+
         .btn:hover
         {
             @include scale(1.1);
         }
     }
 
-    .patient 
+    .patient
     {
         .band
         {
             fill : #FFF;
             transition: fill 0.25s ease;
-            
+
             border-radius: 5px;
-        
+
             &:hover
-            { 
+            {
                 fill : #33D;
             }
 
             &:active
-            { 
+            {
                 fill : $selected-color;
             }
-        } 
+        }
 
         &.alt .band{
            // fill : #EEE;
-    
+
             &:hover
-            { 
+            {
                 fill : #33D;
             }
 
             &:active
-            { 
+            {
                 fill : $selected-color;
             }
         }
@@ -455,7 +495,7 @@ body {
             transition: all 1s ease;
         }
 
-        &.locked 
+        &.locked
         {
             text
             {
@@ -474,10 +514,10 @@ body {
             {
                 fill : $selected-color !important;
             }
-        
+
             text.episode
             {
-              
+
             }
 
             path.select
@@ -486,18 +526,18 @@ body {
             }
         }
 
-        .isolate 
+        .isolate
         {
             fill : $negative-isolate-color;
             stroke : #888;
             stroke-width: 2px;
-    
+
             transition: all 0.5s ease-in-out;
-    
+
             &.positive
             {
-                
-                fill : $both-overlap-color;
+
+                fill : $positive-isolate-color;
                  &:hover, &.related
                 {
                     stroke: #000;
@@ -506,5 +546,5 @@ body {
             }
         }
     }
-    
+
 }
