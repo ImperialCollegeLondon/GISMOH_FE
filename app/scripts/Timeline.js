@@ -69,8 +69,6 @@ var Timeline = (function () {
                 this.listenTo(this.isolateCollection, 'sync', this.isolatesLoadedCB);
                 this.listenTo(this.overlapCollection, 'sync', this.overlapsLoadedCB);
 
-                //this.router.on('route:selected', this.selectedPatient, this);
-
                 this.patients = {};
                 this.episodes = {};
                 this.isolates = [];
@@ -138,6 +136,7 @@ var Timeline = (function () {
                 }
             },
             highlightOverlaps : function () {
+                console.debug('overlaps');
                 this.overlapCollection.each(this.unhighlightOverlap, this);
                 this.overlapCollection.each(this.highlightOverlap, this);
                 //this.redraw('overlaps');
