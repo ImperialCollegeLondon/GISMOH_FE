@@ -1,0 +1,15 @@
+styles_dev:
+    - 'less:dev'
+    - 'autoprefixer:dev'
+
+serve:
+    - 'styles_dev'
+    - 'express'
+    - 'open'
+    - 'watch'
+
+build:
+
+deploy:
+
+test:
