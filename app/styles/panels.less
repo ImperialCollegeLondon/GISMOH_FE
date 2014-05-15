@@ -1,0 +1,45 @@
+.panels
+{
+    width: 100%;
+    overflow: hidden;
+    position: relative;
+
+    min-height: 640px;
+}
+
+.panel
+{
+    display: block;
+    position: absolute;
+    top: 0px;
+    left: 110%;
+    width: 80%;
+    height: 90%;
+    box-shadow: -10px -10px 10px rgba(200,200,200,0.8);
+
+    padding: 1em;
+
+    background: white;
+
+    transition: 0.5s all ease;
+
+    border: 1px solid #EEe;
+
+    overflow-y: auto;
+
+    h2
+    {
+        margin-top: 0;
+    }
+}
+
+.panel.selected
+{
+    left: 10%;
+}
+
+.panel.left
+{
+    left: 0;
+    filter: opacity(50%);
+}
