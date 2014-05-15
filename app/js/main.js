@@ -1,8 +1,7 @@
 (function(){
     function init()
     {
-        var panels = new Panels(document.body.querySelector('.panels'));
-        window.panels = panels;
+        var table = new PatientTable(document.getElementById('patient_table'));
     }
 
     document.body.onload = init;
