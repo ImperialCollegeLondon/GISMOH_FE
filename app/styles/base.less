@@ -1,14 +1,19 @@
+@max-page-width : 1200px;
+@page-margin : 1em auto;
+
 body
 {
     font-family: 'helvetica neue';
     color : #8d8d8d;
-    margin : 1em;
+
 
 }
 
 div, section
 {
     box-sizing: border-box;
+    margin : 1em auto;
+    max-width: 1200px;
 }
 
 header
@@ -17,6 +22,11 @@ header
     margin : -1em -1em 1em;
     padding: 1em;
 
+    h1
+    {
+        max-width: @max-page-width;
+        margin: 0.25em auto;
+    }
 }
 
 h1, h2, h3
