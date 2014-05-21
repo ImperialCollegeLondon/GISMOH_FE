@@ -1,13 +1,44 @@
 (function(){
     var templateManager,
-        patientTable;
+        patientTable,
+        antibioticList = [];
+
+    function addAntibiotic(antibiotic)
+    {
+        patientTable.addHeader(antibiotic, 'antibiotics');
+    }
+
+    function drawPatients(data)
+    {
+        if(typeof data == 'string') { data = JSON.parse(data); }
+
+        var table = document.getElementById('patient_table')
+
+        for( var i = 0; i < data.length; i++ )
+        {
+            var formatted_isolate = format(data[i])
+        }
+    }
+
+    function format(isolate)
+    {
+        var antibiogram = isolate.sir_result;
+        for ( var antibiotic in antibiogram )
+        {
+            if ( antibioticList.indexOf(antibiotic) == -1 ) // if this antibiotic isn't in the list of antibiotics
+            {
+                addAntibiotic(antibiotic);
+            }
+
+        }
+
+    }
 
     function init()
     {
         templateManager = new TemplateManager();
 
-        templateManager.loadAndAppend('patient_table', {}, document.getElementById('patient_table'));
-        templateManager.load('patient_row');
+        patientTable = new PatientTable('#patient_table', templateManager);
 
         loadIsolates(null, new Date(2014, 01, 01));
     }
@@ -21,19 +52,6 @@
             },
             success: drawPatients
         });
-    }
-
-    function drawPatients(data)
-    {
-        if(typeof data == 'string') { data = JSON.parse(data); }
-
-        var table = document.getElementById('patient_table').firstChild.tBodies[0];
-
-        for( var i = 0; i < data.length; i++ )
-        {
-            console.debug(data[i]);
-            templateManager.loadAndAppend('patient_row', data[i], table);
-        }
     }
 
     document.body.onload = init;
