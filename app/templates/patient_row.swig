@@ -1,6 +1,12 @@
-<tr>
+<tr class="patient" patientid="n{{patient_number}}">
     <td>{{ patient_number }}</td>
-    {% for x in ab.sir_results %}
-        <td title={{loop.key}}>{{x}}</td>
+    <td>{{ date_of_birth }}</td>
+    <td>{{ location.ward_name }}</td>
+    <td>{{ location.specialty }}</td>
+    {% for x in ab %}
+        <td title="{{loop.key}}" class="{{ section }} resistance-{{x}}">{{x}}</td>
     {% endfor %}
+    <td class="tail inf"></td>
+    <td class="tail ovl"></td>
+    <td class="tail"><button type="button">Show Overlaps</button></td>
 </tr>

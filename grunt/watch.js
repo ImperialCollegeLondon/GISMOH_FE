@@ -15,7 +15,8 @@ module.exports = {
             livereload: true
         },
         files: [
-            'app/js/*.js'
+            'app/js/*.js',
+            'app/templates/*.swig'
         ]
     }
 }

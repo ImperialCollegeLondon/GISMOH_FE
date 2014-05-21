@@ -16,20 +16,22 @@
 
         for( var i = 0; i < data.length; i++ )
         {
-            var formatted_isolate = format(data[i])
+            var formatted_isolate = patientTable.addPatient(data[i])
         }
     }
 
-    function format(isolate)
+    function processIsolate(isolate)
     {
-        var antibiogram = isolate.sir_result;
+        var antibiogram = isolate.ab.sir_results;
+
         for ( var antibiotic in antibiogram )
         {
+
             if ( antibioticList.indexOf(antibiotic) == -1 ) // if this antibiotic isn't in the list of antibiotics
             {
-                addAntibiotic(antibiotic);
+                patientTable.addAntibiotic(antibiotic);
+                antibioticList.push(antibiotic);
             }
-
         }
 
     }
@@ -40,7 +42,10 @@
 
         patientTable = new PatientTable('#patient_table', templateManager);
 
-        loadIsolates(null, new Date(2014, 01, 01));
+        $(document.body).on('template:loaded:patient_table', function(evt)
+        {
+            loadIsolates(null, new Date(2014, 01, 01));
+        });
     }
 
     function loadIsolates(from_date, to_date, filters)

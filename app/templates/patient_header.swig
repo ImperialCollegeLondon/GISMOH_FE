@@ -1,1 +1,1 @@
-<th class="{{ section }}">{{ text }}</th>
+<th class="{{ section }}" title="{{title}}">{{ text }}</th>

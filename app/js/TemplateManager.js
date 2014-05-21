@@ -53,8 +53,6 @@ var TemplateManager = (function(){
     {
         if(this.templates[name])
         {
-            console.debug(this.templates[name]);
-
             return swig.render(this.templates[name], { locals : data });
         }
         else
