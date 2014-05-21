@@ -15,7 +15,7 @@ module.exports = {
             livereload: true
         },
         files: [
-            '**/*.less'
+            'app/js/*.js'
         ]
     }
 }

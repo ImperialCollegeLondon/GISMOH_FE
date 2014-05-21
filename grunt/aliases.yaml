@@ -4,7 +4,8 @@ styles_dev:
 
 serve:
     - 'styles_dev'
-    - 'express'
+    - 'configureProxies:server'
+    - 'connect'
     - 'open'
     - 'watch'
 

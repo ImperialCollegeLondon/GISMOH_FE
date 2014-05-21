@@ -2,6 +2,7 @@
     <thead>
         <tr>
             <th>NHS Number</th>
+            <th></th>
         </tr>
     </thead>
     <tbody>

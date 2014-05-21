@@ -11,7 +11,7 @@ var TemplateManager = (function(){
         this.templates[name] = false;
 
         $.ajax({
-            url : this.template_dir + name + '.mustache',
+            url : this.template_dir + name + '.swig',
             success: this.load_template_callback.bind({ templates : this.templates, name : name, loaded_event : this.loaded_event }),
             error: this.load_template_error
         });
@@ -27,11 +27,10 @@ var TemplateManager = (function(){
         {
             $(document.body).one('template:loaded:' + name, function(evt, name)
             {
-
                 $(parent).append(this.use_template(name, data));
             }.bind(this));
 
-            this.load(name);
+            if(this.templates[name] !== false) this.load(name);
         }
     }
 
@@ -52,12 +51,11 @@ var TemplateManager = (function(){
 
     TemplateManager.prototype.use_template = function(name, data)
     {
-
-
         if(this.templates[name])
         {
-            console.debug('render');
-            return Mustache.render(this.templates[name], data);
+            console.debug(this.templates[name]);
+
+            return swig.render(this.templates[name], { locals : data });
         }
         else
         {
