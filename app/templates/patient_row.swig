@@ -1,4 +1,4 @@
-<tr class="patient" patientid="n{{patient_number}}">
+<tr class="patient" patientid="n{{patient_id}}">
     <td>{{ patient_number }}</td>
     <td>{{ date_of_birth }}</td>
     <td>{{ location.ward_name }}</td>

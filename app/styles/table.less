@@ -30,3 +30,26 @@ td, th
 	background : #EEEEEE;
 	color : #000;
 }
+
+td.loading:after
+{
+	animation-duration: 1s;
+	animation-name : loading;
+	animation-iteration-count: infinite;
+
+	content : 'O';
+}
+
+@keyframes loading
+{
+	0%,100%
+	{
+		text-shadow: 0.5em 0em rgba(200, 200, 255, 1), -0.5em 0em rgba(200, 200, 255, 1);
+	}
+
+	50%
+	{
+		text-shadow: 0em 0em rgba(200, 200, 255, 1), 0em 0em rgba(200, 200, 255, 1);
+	}
+
+}

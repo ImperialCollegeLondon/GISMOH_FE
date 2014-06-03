@@ -48,10 +48,11 @@ var PatientTable = (function(){
         patient_template.patient_number = patient.patient_number;
         patient_template.date_of_birth = patient.dob;
         patient_template.location = patient.location;
-
-        console.debug(patient_template);
+        patient_template.patient_id = patient.patient_id;
 
         this.templateManager.loadAndAppend('patient_row', patient_template, this.body);
+
+        this.getOverlapsFor(patient)
 
     }
 
@@ -119,11 +120,33 @@ var PatientTable = (function(){
         return { name : name, shortName : shortName};
     }
 
+    Table.prototype.getOverlapsFor = function(patient)
+    {
+        $('[patientid=n' + patient.patient_id + '] .inf, [patientid=n' + patient.patient_id + '] .ovl')
+            .addClass('loading')
+
+        $.ajax({
+            url : '/api/similarity',
+            data : {
+                patient_id : patient.patient_id,
+                at_date : new Date().strftime('%Y-%m-%dT%H:%M:%S'),
+                isolate_id : patient.ab.isolate_id
+            },
+            success : function(data){
+                $('[patientid=n' + patient.patient_id + '] .inf')
+                    .removeClass('loading')
+                    .text(data[patient.ab.isolate_id].length)
+            }
+        });
+
+    }
+
     Table.prototype.tableLoaded = function(evt)
     {
         this.header = $('thead', this.div);
         this.body = $('tbody', this.div);
     }
+
 
     return Table;
 })();
