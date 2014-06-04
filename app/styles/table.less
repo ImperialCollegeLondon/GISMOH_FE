@@ -33,23 +33,35 @@ td, th
 
 td.loading:after
 {
-	animation-duration: 1s;
+	animation-duration: 2s;
 	animation-name : loading;
 	animation-iteration-count: infinite;
+	animation-timing-function: linear;
 
 	content : 'O';
+	color: transparent;
 }
 
 @keyframes loading
 {
-	0%,100%
+	25%
 	{
-		text-shadow: 0.5em 0em rgba(200, 200, 255, 1), -0.5em 0em rgba(200, 200, 255, 1);
+		text-shadow: 0.5em 0em rgba(100, 100, 255, 1), -0.5em 0em rgba(100, 100, 255, 0.1);
+	}
+
+	0%, 100%
+	{
+		text-shadow: 0em 0em rgba(100, 100, 255, 1), 0em 0em rgba(100, 100, 255, 0.1);
+	}
+
+
+	75%
+	{
+		text-shadow: -0.5em 0em rgba(100, 100, 255, 0.1), 0.5em 0em rgba(100, 100, 255, 1);
 	}
 
 	50%
 	{
-		text-shadow: 0em 0em rgba(200, 200, 255, 1), 0em 0em rgba(200, 200, 255, 1);
+		text-shadow: 0em 0em rgba(100, 100, 255, 0.1), 0em 0em rgba(100, 100, 255, 1);
 	}
-
 }
