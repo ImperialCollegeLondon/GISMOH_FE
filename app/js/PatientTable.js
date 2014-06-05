@@ -122,7 +122,7 @@ var PatientTable = (function(){
 
     Table.prototype.getOverlapsFor = function(patient)
     {
-        $('[patientid=n' + patient.patient_id + '] .inf, [patientid=n' + patient.patient_id + '] .ovl')
+        $('[patientid=n' + patient.patient_id + '] .inf .value, [patientid=n' + patient.patient_id + '] .ovl .value')
             .addClass('loading')
 
         $.ajax({
@@ -133,9 +133,23 @@ var PatientTable = (function(){
                 isolate_id : patient.ab.isolate_id
             },
             success : function(data){
-                $('[patientid=n' + patient.patient_id + '] .inf')
+                var isolate_overlaps = data[patient.ab.isolate_id],
+                    similar_antibiogram_count = isolate_overlaps.length,
+                    double_overlap_count = 0;
+
+                for( var i = similar_antibiogram_count; i-- ; )
+                {
+                    console.debug(isolate_overlaps[i].location_overlaps)
+                    double_overlap_count += isolate_overlaps[i].location_overlaps;
+                }
+
+                $('[patientid=n' + patient.patient_id + '] .inf .value')
                     .removeClass('loading')
-                    .text(data[patient.ab.isolate_id].length)
+                    .text(similar_antibiogram_count);
+
+                $('[patientid=n' + patient.patient_id + '] .ovl .value')
+                    .removeClass('loading')
+                    .text(double_overlap_count);
             }
         });
 

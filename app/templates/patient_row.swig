@@ -6,7 +6,7 @@
     {% for x in ab %}
         <td title="{{loop.key}}" class="{{ section }} resistance-{{x}}">{{x}}</td>
     {% endfor %}
-    <td class="tail inf"></td>
-    <td class="tail ovl"></td>
-    <td class="tail"><button type="button">Show Overlaps</button></td>
+    <td class="tail inf"><span class="value"></span><button type="button">Show</button></td>
+    <td class="tail ovl"><span class="value"></span><button type="button">Show</button></td>
+
 </tr>

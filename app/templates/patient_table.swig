@@ -7,7 +7,6 @@
             <th>Speciality</th>
             <th class="tail" title="Related Infections">Inf</th>
             <th class="tail" title="Related Infections in Patients that have shared a ward with this patient">Inf & Ovl</th>
-            <th class="tail">Explore</th>
         </tr>
     </thead>
     <tbody>

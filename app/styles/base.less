@@ -1,12 +1,28 @@
-@max-page-width : 1200px;
-@page-margin : 1em auto;
 
 body
 {
     font-family: 'helvetica neue';
-    color : #666;
+    color : @foreground;
+}
 
+button
+{
+    font-size: 1em;
 
+    background: @control-background;
+    border : 1px solid @control-border;
+    border-radius: 1em;
+
+    padding: 0.5em;
+
+    cursor: pointer;
+
+    &:hover
+    {
+        background : @highlight-background-color;
+        color: @highlight-foreground-color;
+        border-color: @highlight-foreground-color;
+    }
 }
 
 div, section
